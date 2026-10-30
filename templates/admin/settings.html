@@ -86,7 +86,7 @@
   </div>
   <div class="card small">
     <h2>✉️ Email server</h2>
-    {% if mail_live %}<p><span class="badge ok">Connected</span></p>{% else %}<p><span class="badge warn">Not set up</span></p><p>Set <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>. Emails are still saved in the log so you can read them.</p>{% endif %}
+    {% if mail_live %}<p><span class="badge ok">Connected</span></p>{% else %}<p><span class="badge warn">Not set up</span></p><p>Set <code>BREVO_API_KEY</code> + <code>MAIL_FROM</code> (works on Render free) or the <code>SMTP_...</code> settings. Emails are still saved in the log so you can read them.</p>{% endif %}
     <form method="post" action="{{ url_for('admin_test_email') }}" class="row"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="field"><input type="email" name="to" required placeholder="your@email.com"></div><div class="field"><button class="btn sm">Send test</button></div></form>
   </div>

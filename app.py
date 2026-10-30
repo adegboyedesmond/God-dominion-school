@@ -21,6 +21,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)  # correct https links behind Render/Railway
+if os.getenv("RENDER") or os.getenv("SITE_URL", "").startswith("https://"):
+    app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
+                      PREFERRED_URL_SCHEME="https")
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-this-secret-key")
 log = logging.getLogger("school")
 logging.basicConfig(level=logging.INFO)
@@ -574,14 +579,37 @@ def abs_url(endpoint, **kw):
         return (SITE_URL or "") + "/"
 
 
+BREVO_KEY = os.getenv("BREVO_API_KEY", "").strip()
+
+
 def mail_ready():
+    if BREVO_KEY:
+        return bool(SMTP["sender"])
     return bool(SMTP["host"] and (SMTP["sender"] or SMTP["user"]))
+
+
+def _send_brevo(to, subject, html, text):
+    """Send through Brevo's HTTPS API — works on hosts that block SMTP (e.g. Render free plan)."""
+    reply = get_setting("school_email")
+    body = {"sender": {"name": get_setting("school_name"), "email": SMTP["sender"]},
+            "to": [{"email": to}], "subject": subject, "htmlContent": html, "textContent": text}
+    if valid_email(reply):
+        body["replyTo"] = {"email": reply}
+    r = requests.post("https://api.brevo.com/v3/smtp/email", json=body, timeout=30,
+                      headers={"api-key": BREVO_KEY, "accept": "application/json", "content-type": "application/json"})
+    if r.status_code >= 300:
+        raise RuntimeError(f"Brevo {r.status_code}: {r.text[:300]}")
 
 
 def _deliver(log_id, to, subject, html, text):
     with app.app_context():
         entry = db.session.get(EmailLog, log_id)
         try:
+            if BREVO_KEY:
+                _send_brevo(to, subject, html, text)
+                entry.status = "sent"
+                db.session.commit()
+                return
             msg = EmailMessage()
             msg["Subject"] = subject
             msg["From"] = f'{get_setting("school_name")} <{SMTP["sender"] or SMTP["user"]}>'
@@ -704,7 +732,7 @@ def save_upload(fs, folder="media", allowed=ALLOWED_IMG):
     data = fs.read()
     if SUPABASE_URL and SUPABASE_KEY:
         r = requests.post(f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{name}", data=data, timeout=60,
-                          headers={"Authorization": f"Bearer {SUPABASE_KEY}", "apikey": SUPABASE_KEY,
+                          headers={**({"Authorization": f"Bearer {SUPABASE_KEY}"} if SUPABASE_KEY.startswith("eyJ") else {}), "apikey": SUPABASE_KEY,
                                    "Content-Type": fs.mimetype or "application/octet-stream", "x-upsert": "true"})
         if r.status_code >= 300:
             raise ValueError("Upload to Supabase Storage failed: " + r.text[:200])
