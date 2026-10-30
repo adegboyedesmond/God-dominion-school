@@ -1,0 +1,21 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head, news_card, event_row with context %}
+{% block title %}News & events · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('News and events', 'What is happening at school, and what is coming up on the calendar.', 'News & events') }}
+<section class="sec"><div class="container">
+  {% if upcoming and kind != 'news' %}
+  <div class="head"><h2>School calendar</h2></div>
+  <div class="split" style="align-items:start;margin-bottom:64px">
+    <div>{% for e in upcoming[:((upcoming|length+1)//2)] %}{{ event_row(e) }}{% endfor %}</div>
+    <div>{% for e in upcoming[((upcoming|length+1)//2):] %}{{ event_row(e) }}{% endfor %}</div>
+  </div>
+  {% endif %}
+  <div class="filters" role="group" aria-label="Filter posts">
+    <a class="b b-sm {{ 'b-royal' if not kind else 'b-line' }}" href="{{ url_for('news_list') }}">Everything</a>
+    <a class="b b-sm {{ 'b-royal' if kind=='news' else 'b-line' }}" href="{{ url_for('news_list', kind='news') }}">News</a>
+    <a class="b b-sm {{ 'b-royal' if kind=='event' else 'b-line' }}" href="{{ url_for('news_list', kind='event') }}">Events</a>
+  </div>
+  <div class="news">{% for p in posts %}{{ news_card(p) }}{% else %}<p>Nothing posted yet.</p>{% endfor %}</div>
+</div></section>
+{% endblock %}

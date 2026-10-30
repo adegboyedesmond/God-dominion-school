@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🎓 Students</h1>
+<div class="grid g2">
+  <details class="card"><summary><b>➕ Add a student</b></summary>
+    <form method="post" class="mt">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row"><div class="field"><label>Full name</label><input name="full_name" required></div><div class="field"><label>Reg No (login)</label><input name="reg_no" required></div></div>
+      <div class="row"><div class="field"><label>Class</label><select name="class_id"><option value="">—</option>{% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if request.args.class_id==c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+        <div class="field"><label>Gender</label><select name="gender"><option>M</option><option>F</option></select></div><div class="field"><label>Date of birth</label><input type="date" name="dob"></div></div>
+      <div class="row"><div class="field"><label>Parent name</label><input name="guardian_name"></div><div class="field"><label>Parent phone</label><input name="guardian_phone"></div></div>
+      <div class="field"><label>Parent email</label><input type="email" name="guardian_email"></div>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:400" class="mb"><input type="checkbox" name="make_parent" value="1" checked> Create a parent portal login and email both logins</label>
+      <div class="row"><div class="field"><label>Email</label><input name="email" type="email"></div><div class="field"><label>Password (blank = reg no)</label><input name="password"></div></div>
+      <div class="field"><label>Address</label><input name="address"></div>
+      <button class="btn">Add Student</button>
+    </form>
+  </details>
+  <div class="card"><b>⬆ Import students from CSV</b>
+    <p class="small muted">Columns: reg_no, full_name, class, gender, dob, guardian_name, guardian_phone, guardian_email, address. Class must match an existing class name.</p>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('admin_students_import') }}" class="row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><input type="file" name="file" accept=".csv" required></div>
+      <div class="field"><button class="btn sm">Import</button> <a class="btn sm alt" href="{{ url_for('admin_students_template') }}">Template</a></div>
+    </form>
+  </div>
+</div>
+<form method="get" class="row mb">
+  <div class="field"><input name="q" value="{{ request.args.q or '' }}" placeholder="Search name or reg no"></div>
+  <div class="field"><select name="class_id"><option value="">All classes</option>{% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if request.args.class_id==c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div class="field"><select name="status">{% for s in ['active','graduated','withdrawn',''] %}<option value="{{ s }}" {{ 'selected' if (request.args.status or 'active')==s }}>{{ s or 'any status' }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn sm">Filter</button></div>
+</form>
+<p class="muted small">{{ students|length }} student(s)</p>
+<div class="tbl"><table>
+  <thead><tr><th>Reg No</th><th>Name</th><th>Class</th><th>Gender</th><th>Guardian</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for s in students %}
+    <tr><td>{{ s.reg_no }}</td><td>{{ s.user.full_name }}</td><td>{{ s.school_class.name if s.school_class else '-' }}</td><td>{{ s.gender or '' }}</td>
+      <td class="small">{{ s.guardian_name or '' }}<br>{{ s.guardian_phone or '' }}</td><td><span class="badge {{ 'ok' if s.status=='active' }}">{{ s.status }}</span></td>
+      <td><a class="btn sm alt" href="{{ url_for('admin_student_edit', sid=s.id) }}">Open</a></td></tr>
+  {% else %}<tr><td colspan="7" class="center muted">No students found.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head with context %}
+{% block title %}Check result · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Check your result', 'Use the serial number and PIN on your result-checker card. Each card works ' ~ S.pin_max_uses ~ ' times for one student and one term.', 'Check result') }}
+<section class="sec"><div class="container split" style="align-items:start">
+  <form class="form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="fg">
+      <div class="f full"><label for="rn">Registration number</label><input id="rn" name="reg_no" required placeholder="e.g. GDS/2026/001"></div>
+      <div class="f"><label for="sn">Card serial number</label><input id="sn" name="serial" required placeholder="SN12345678"></div>
+      <div class="f"><label for="pn">PIN</label><input id="pn" name="pin" required inputmode="numeric" placeholder="12 digits"></div>
+      <div class="f"><label for="ss">Session</label><select id="ss" name="session_id">{% for s in sessions %}<option value="{{ s.id }}" {{ 'selected' if cur_session and s.id==cur_session.id }}>{{ s.name }}</option>{% endfor %}</select></div>
+      <div class="f"><label for="tm">Term</label><select id="tm" name="term">{% for t in TERMS %}<option {{ 'selected' if t==cur_term }}>{{ t }}</option>{% endfor %}</select></div>
+    </div>
+    <button class="b b-royal" style="margin-top:18px">Show my result</button>
+  </form>
+  <div class="box">
+    <h3>No PIN yet?</h3>
+    <p>Buy a result-checker card at the school bursary, or log in to the student portal and buy a PIN online.</p>
+    <a class="b b-line b-sm" href="{{ url_for('login') }}">Buy a PIN online</a>
+    <h3 style="margin-top:26px">Having trouble?</h3>
+    <ul class="ticks"><li>Type the PIN without spaces</li><li>Make sure your class result has been published</li><li>Outstanding fees may block results this term</li></ul>
+  </div>
+</div></section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🕘 My teaching timetable</h1>
+<div class="tbl"><table class="ttv">
+  <thead><tr><th>Time</th>{% for d in days %}<th class="{{ 'today' if loop.index0 == today.weekday() }}">{{ d }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for p in periods %}{% set pi = loop.index0 %}
+    <tr><th class="small">{{ p }}</th>
+    {% for d in days %}{% set ts = grid.get((loop.index0, pi), []) %}
+      <td class="{{ 'today' if loop.index0 == today.weekday() }}">{% for t in ts %}<b>{{ names[t.class_id] }}</b><div class="small muted">{{ t.subject.name }}</div>{% endfor %}</td>
+    {% endfor %}</tr>
+  {% endfor %}</tbody>
+</table></div>
+{% if not grid %}<p class="muted mt">None of your lessons are on a class timetable yet.</p>{% endif %}
+<style>.ttv td,.ttv th{text-align:center;font-size:.85rem;border:1px solid var(--line)}.ttv td.today,.ttv th.today{background:#f3effd}</style>
+{% endblock %}

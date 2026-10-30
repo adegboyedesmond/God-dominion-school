@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🗓️ Attendance today</h1>
+<p class="muted">{{ day.strftime('%A %d %B %Y') }}. Form teachers mark their class every morning; you can mark any class.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Class</th><th>Form teacher</th><th>Students</th><th>Marked</th><th>Absent</th><th></th></tr></thead>
+  <tbody>{% for cl, n, marked, absent in rows %}
+    <tr><td><b>{{ cl.name }}</b></td><td>{{ cl.form_teacher.full_name if cl.form_teacher else '—' }}</td><td>{{ n }}</td>
+      <td>{% if n and marked >= n %}<span class="badge ok">done</span>{% elif marked %}<span class="badge warn">{{ marked }}/{{ n }}</span>{% else %}<span class="badge bad">not yet</span>{% endif %}</td>
+      <td>{{ absent }}</td><td><a class="btn sm alt" href="{{ url_for('attendance_register', class_id=cl.id) }}">Open register</a></td></tr>
+  {% else %}<tr><td colspan="6" class="center muted">No classes yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

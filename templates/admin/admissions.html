@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📥 Admission Applications</h1>
+<div class="row mb">
+  <a class="btn sm {{ '' if not request.args.status else 'alt' }}" href="{{ url_for('admin_admissions') }}">All ({{ counts.values()|sum }})</a>
+  {% for s in statuses %}<a class="btn sm {{ '' if request.args.status==s else 'alt' }}" href="?status={{ s }}">{{ s|title }} ({{ counts.get(s, 0) }})</a>{% endfor %}
+</div>
+<div class="tbl"><table>
+  <thead><tr><th>App No</th><th>Child</th><th>Class</th><th>Parent</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for a in apps %}
+    <tr><td class="small">{{ a.app_no }}</td><td><b>{{ a.full_name }}</b><div class="small muted">{{ a.gender }} {{ a.dob or '' }}</div></td><td>{{ a.class_sought }}</td>
+      <td class="small">{{ a.parent_name }}<br><a href="tel:{{ a.phone }}">{{ a.phone }}</a></td><td class="small">{{ a.created_at.strftime('%d %b %Y') }}</td>
+      <td><span class="badge {{ 'ok' if a.status=='admitted' else 'bad' if a.status=='declined' else 'warn' }}">{{ a.status }}</span></td>
+      <td><a class="btn sm alt" href="{{ url_for('admin_admission', aid=a.id) }}">Open</a></td></tr>
+  {% else %}<tr><td colspan="7" class="center muted">No applications{{ ' with this status' if request.args.status }}.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

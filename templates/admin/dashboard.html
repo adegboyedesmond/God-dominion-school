@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<p class="muted">{{ cur_session.name if cur_session }} · {{ cur_term }}</p>
+<div class="grid g4 mb">
+  <div class="stat"><div class="n">{{ stats.students }}</div><div class="l">Active students</div></div>
+  <div class="stat"><div class="n">{{ stats.teachers }}</div><div class="l">Teachers</div></div>
+  <div class="stat"><div class="n">{{ stats.classes }}</div><div class="l">Classes</div></div>
+  <div class="stat"><div class="n">{{ stats.subjects }}</div><div class="l">Subjects</div></div>
+  <div class="stat"><div class="n" style="color:var(--ok)">{{ stats.revenue|money }}</div><div class="l">Collected this term</div></div>
+  <div class="stat"><div class="n">{{ stats.expected|money }}</div><div class="l">Expected this term</div></div>
+  <div class="stat"><div class="n" style="color:var(--bad)">{{ stats.owing|money }}</div><div class="l">Outstanding fees</div></div>
+  <div class="stat"><div class="n">{{ stats.pins_unused }} / {{ stats.pins_used }}</div><div class="l">PINs unused / used</div></div>
+</div>
+<div class="grid g2">
+  <div class="card">
+    <h2>Recent Payments</h2>
+    <div class="tbl"><table><tbody>
+      {% for p in recent %}<tr><td>{{ p.student.user.full_name if p.student else (p.application.full_name if p.application else '') }}<div class="small muted">{{ p.student.reg_no if p.student else 'Applicant' }} · {{ {'fees':'Fees','pin':'PIN','form':'Form fee'}.get(p.purpose, p.purpose) }}</div></td><td class="right">{{ p.amount|money }}<div class="small muted">{{ p.paid_at.strftime('%d %b') if p.paid_at }}</div></td></tr>
+      {% else %}<tr><td class="muted">No payments yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <a class="btn sm alt mt" href="{{ url_for('admin_payments') }}">All payments →</a>
+  </div>
+  <div class="card">
+    <h2>Students per Class</h2>
+    <div class="tbl"><table><tbody>
+      {% for name, n in by_class %}<tr><td>{{ name }}</td><td class="right"><b>{{ n }}</b></td></tr>{% else %}<tr><td class="muted">No classes yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p class="mt small muted">Results published this term: <b>{{ stats.published }}</b> class(es). <a href="{{ url_for('admin_results') }}">Manage results →</a></p>
+  </div>
+</div>
+<div class="card">
+  <h2>Quick Start</h2>
+  <ol class="small">
+    <li><a href="{{ url_for('admin_settings') }}">Settings</a>: school name, logo, session & term, score split, PIN price.</li>
+    <li><a href="{{ url_for('admin_teachers') }}">Add teachers</a> → <a href="{{ url_for('admin_classes') }}">create classes</a> (set form teachers).</li>
+    <li><a href="{{ url_for('admin_subjects') }}">Add subjects</a> and assign each to classes + a teacher.</li>
+    <li><a href="{{ url_for('admin_students') }}">Add or import students</a> (CSV).</li>
+    <li><a href="{{ url_for('admin_fees') }}">Set term fees</a> and <a href="{{ url_for('admin_pins') }}">generate result PINs</a>.</li>
+    <li>Teachers enter scores → you <a href="{{ url_for('admin_results') }}">publish results</a> → students check with PIN.</li>
+  </ol>
+</div>
+{% endblock %}

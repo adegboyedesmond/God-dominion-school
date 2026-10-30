@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row noprint mb" style="justify-content:space-between">
+  <h1>Broadsheet — {{ cl.name }} {% if published %}<span class="badge ok">Published</span>{% else %}<span class="badge warn">Not published</span>{% endif %}</h1>
+  <form class="row" method="get">
+    <div class="field"><select name="session_id">{% for s in sessions %}<option value="{{ s.id }}" {{ 'selected' if s.id==sess.id }}>{{ s.name }}</option>{% endfor %}</select></div>
+    <div class="field"><select name="term">{% for t in TERMS %}<option {{ 'selected' if t==term }}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="field"><button class="btn sm">View</button></div>
+    <div class="field"><a class="btn sm alt" href="?session_id={{ sess.id }}&term={{ term }}&format=csv">⬇ CSV</a></div>
+    <div class="field"><button type="button" class="btn sm alt" onclick="print()">🖨️</button></div>
+  </form>
+</div>
+<p class="muted">{{ sess.name }} · {{ term }} · {{ rows|length }} students</p>
+<div class="tbl">
+<table>
+  <thead><tr><th>Pos</th><th>Student</th>{% for s in subjects %}<th title="{{ s.name }}">{{ s.code or s.name[:4] }}</th>{% endfor %}<th>Total</th><th>Avg</th>{% if user.role=='admin' %}<th class="noprint"></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for d in rows %}{% set m = {} %}{% for x in d.scores %}{% set _ = m.update({x.subject_id: x.total}) %}{% endfor %}
+    <tr><td>{{ d.position|ordinal if d.position else '-' }}</td><td>{{ d.student.user.full_name }}<div class="small muted">{{ d.student.reg_no }}</div></td>
+      {% for s in subjects %}<td>{{ m.get(s.id, '-') }}</td>{% endfor %}
+      <td><b>{{ d.total }}</b></td><td>{{ d.average }}</td>
+      {% if user.role=='admin' %}<td class="noprint"><a class="btn sm alt" href="{{ url_for('admin_student_report', sid=d.student.id, session_id=sess.id, term=term) }}">Report</a></td>{% endif %}</tr>
+  {% else %}<tr><td colspan="{{ subjects|length + 5 }}" class="center muted">No students in this class.</td></tr>{% endfor %}
+  </tbody>
+  {% if stats %}<tfoot><tr><th></th><th>Class average</th>{% for s in subjects %}<th>{{ stats[s.id].avg if s.id in stats else '-' }}</th>{% endfor %}<th></th><th></th>{% if user.role=='admin' %}<th class="noprint"></th>{% endif %}</tr></tfoot>{% endif %}
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% for h in items %}
+<div class="hw {{ 'late' if h.due_date and h.due_date < today }}">
+  <div class="row" style="justify-content:space-between;gap:8px"><b>{{ h.title }}</b>
+    {% if h.due_date %}<span class="badge {{ 'bad' if h.due_date < today else 'warn' if (h.due_date - today).days <= 1 else '' }}">due {{ h.due_date.strftime('%a %d %b') }}</span>{% endif %}</div>
+  <div class="small muted">{{ h.cs.subject.name }}{% if h.cs.teacher %} · {{ h.cs.teacher.full_name }}{% endif %} · set {{ h.created_at.strftime('%d %b') }}</div>
+  {% if h.details %}<p class="small" style="white-space:pre-line;margin:6px 0 0">{{ h.details }}</p>{% endif %}
+  {% if h.file_url %}<a class="small" href="{{ h.file_url }}" target="_blank">📎 Download worksheet</a>{% endif %}
+</div>
+{% else %}<p class="muted">No homework at the moment.</p>{% endfor %}
+<style>.hw{border-left:4px solid var(--brand-2);background:#fff;padding:10px 12px;border-radius:8px;margin-bottom:10px;border:1px solid var(--line);border-left-width:4px}.hw.late{border-left-color:#bbb;opacity:.75}</style>

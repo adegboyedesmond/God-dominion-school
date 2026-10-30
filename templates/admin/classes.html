@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🏫 Classes</h1>
+<form method="post" class="card row">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="add">
+  <div class="field"><label>Class name</label><input name="name" placeholder="JSS 1A" required></div>
+  <div class="field"><label>Level</label><select name="level">{% for l in levels %}<option>{{ l }}</option>{% endfor %}</select></div>
+  <div class="field"><label>Form teacher</label><select name="form_teacher_id"><option value="">— none —</option>{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn">Add Class</button></div>
+</form>
+<div class="tbl"><table>
+  <thead><tr><th>Class</th><th>Level</th><th>Students</th><th>Form Teacher</th><th></th></tr></thead>
+  <tbody>{% for c in classes %}
+    <tr><td><b>{{ c.name }}</b></td><td>{{ c.level }}</td><td>{{ counts.get(c.id, 0) }}</td>
+      <td><form method="post" class="row" style="gap:6px"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="{{ c.id }}">
+        <select name="form_teacher_id" onchange="this.form.submit()" style="min-width:180px"><option value="">— none —</option>{% for t in teachers %}<option value="{{ t.id }}" {{ 'selected' if c.form_teacher_id==t.id }}>{{ t.full_name }}</option>{% endfor %}</select></form></td>
+      <td style="white-space:nowrap"><a class="btn sm alt" href="{{ url_for('admin_students', class_id=c.id) }}">Students</a>
+        <a class="btn sm alt" href="{{ url_for('broadsheet', class_id=c.id) }}">Broadsheet</a>
+        <form method="post" class="inline" onsubmit="return confirm('Delete {{ c.name }}?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ c.id }}"><button class="btn sm bad">Delete</button></form></td></tr>
+  {% else %}<tr><td colspan="5" class="center muted">No classes yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

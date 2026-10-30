@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🕘 Class timetable</h1>
+<form method="get" class="row mb">
+  <div class="field"><select name="class_id" onchange="this.form.submit()">{% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if c.id==cid }}>{{ c.name }}</option>{% endfor %}</select></div>
+  {% if cid %}<div class="field"><a class="btn sm alt" target="_blank" href="{{ url_for('timetable_view', class_id=cid) }}">View / print</a></div>{% endif %}
+</form>
+{% if not classes %}<p class="muted">Create classes first.</p>{% else %}
+{% if not subjects %}<p class="flash error">Assign subjects to this class first (Subjects &amp; Assignment) so they appear in the timetable.</p>{% endif %}
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="class_id" value="{{ cid }}">
+  <div class="tbl"><table class="tt">
+    <thead><tr><th>Period</th>{% for d in days %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for p in periods %}{% set pi = loop.index0 %}
+      <tr><th class="small">{{ p }}</th>
+      {% for d in days %}{% set di = loop.index0 %}{% set t = grid.get((di, pi)) %}
+        <td><select name="c_{{ di }}_{{ pi }}">
+          <option value="">—</option>
+          {% for s in subjects %}<option value="s:{{ s.id }}" {{ 'selected' if t and t.subject_id==s.id }}>{{ s.name }}</option>{% endfor %}
+          <optgroup label="Other">{% for l in ['Break','Lunch','Devotion','Assembly','Clubs','Sports','Free period'] %}<option value="l:{{ l }}" {{ 'selected' if t and not t.subject_id and t.label==l }}>{{ l }}</option>{% endfor %}</optgroup>
+        </select></td>
+      {% endfor %}</tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <details class="card mt"><summary><b>Change period times</b></summary>
+    <p class="small muted">Comma-separated, e.g. 08:00-08:40,08:40-09:20. Applies to every class.</p>
+    <input name="periods" value="{{ periods|join(',') }}"></details>
+  <p class="mt"><button class="btn ok">💾 Save timetable</button> <span class="small muted">Tip: fill one class, then copy the pattern for others.</span></p>
+</form>
+{% endif %}
+<style>.tt td,.tt th{padding:5px}.tt select{min-width:130px;font-size:.85rem;padding:6px}</style>
+{% endblock %}

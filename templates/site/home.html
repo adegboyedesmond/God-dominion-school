@@ -1,0 +1,164 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import event_row, news_card, cta_band, post_img with context %}
+{% from "site/_icons.html" import icon %}
+{% block main %}
+<section class="hero"><div class="container">
+  <div>
+    <h1>{{ S.hero_title }}</h1>
+    <p class="lead">{{ S.hero_text }}</p>
+    <div class="acts">
+      <a class="b b-royal" href="{{ url_for('admissions') }}#apply">Apply for admission</a>
+      <a class="b b-line" href="{{ url_for('about') }}">Discover our school</a>
+    </div>
+    {% if S.admissions_open == '1' %}<p class="note"><i></i>{{ S.admission_session_text }}</p>{% endif %}
+  </div>
+  <div class="hero-art">
+    <div class="ring"></div>
+    <div class="arch"><img src="{{ url_for('static', filename='img/photos/students.jpg') }}" alt="{{ S.school_name }} students in uniform in the school courtyard" style="object-position:28% 50%"></div>
+    <div class="badge b1"><img src="{{ url_for('static', filename='img/crest.svg') }}" alt="" width="40"><span><b>{{ years }}+ years</b>of teaching and mentoring</span></div>
+    <div class="badge b2"><span><b>{{ S.stat_pass_rate }}%</b>WAEC credit pass rate</span></div>
+  </div>
+</div></section>
+
+<section class="quick"><div class="container"><nav class="grid" aria-label="Quick links">
+  <a href="{{ url_for('public_result') }}"><span class="ic">{{ icon('result') }}</span><span><b>Check result</b><small>With your scratch-card PIN</small></span></a>
+  <a href="{{ url_for('login') }}"><span class="ic">{{ icon('card') }}</span><span><b>Pay school fees</b><small>Card, transfer or USSD</small></span></a>
+  <a href="{{ url_for('admission_status') }}"><span class="ic">{{ icon('track') }}</span><span><b>Track application</b><small>See your admission status</small></span></a>
+  <a href="{{ url_for('portal') }}"><span class="ic">{{ icon('user') }}</span><span><b>Parent portal</b><small>Parents, students and staff</small></span></a>
+</nav></div></section>
+
+<section class="sec"><div class="container split">
+  <div class="arch-img"><img src="{{ url_for('static', filename='img/photos/classroom.jpg') }}" alt="A teacher with students writing in a classroom" loading="lazy" style="object-position:30% 50%"></div>
+  <div>
+    <h2>A word from our principal</h2>
+    <p class="lead">{{ S.principal_welcome }}</p>
+    <div class="sign"><span class="av">{{ S.principal_name[:1] }}</span><span><b>{{ S.principal_name }}</b><small>Principal, {{ S.school_name }}</small></span></div>
+    <div class="values">
+      <div><b>Faith</b><span>Daily devotion and a Christ-centred school culture.</span></div>
+      <div><b>Excellence</b><span>High standards in every subject, every term.</span></div>
+      <div><b>Discipline</b><span>Clear rules, fair consequences, good habits.</span></div>
+      <div><b>Service</b><span>Students learn to lead by helping others.</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec dark"><div class="container">
+  <div class="nums" id="nums">
+    <div><b data-to="{{ years }}">{{ years }}</b><span>Years of excellence</span></div>
+    <div><b data-to="{{ S.stat_students }}">{{ S.stat_students }}</b><span>Students enrolled</span></div>
+    <div><b data-to="{{ S.stat_teachers }}">{{ S.stat_teachers }}</b><span>Qualified teachers</span></div>
+    <div><b data-to="{{ S.stat_pass_rate }}" data-suffix="%">{{ S.stat_pass_rate }}%</b><span>WAEC credit pass rate</span></div>
+  </div>
+</div></section>
+
+<section class="sec tint"><div class="container">
+  <div class="head"><h2>Two stages, one clear path to WAEC and beyond</h2><p class="lead">Students build strong foundations in junior secondary, then choose a stream in senior secondary that fits their strengths and career plans.</p></div>
+  <div class="levels">
+    <article class="level"><div class="pic"><img src="{{ url_for('static', filename='img/photos/classwork.jpg') }}" alt="Junior students writing in class" loading="lazy"></div><div class="in">
+      <h3>Junior secondary · JSS 1–3</h3>
+      <ul><li>Full Basic Education curriculum, including Mathematics, English, Basic Science and Technology</li><li>Weekly ICT practicals and French</li><li>Prepared for BECE (Junior WAEC)</li></ul>
+      <a class="b b-line b-sm" href="{{ url_for('academics') }}#junior">See junior secondary</a></div></article>
+    <article class="level"><div class="pic"><img src="{{ url_for('static', filename='img/photos/lab.jpg') }}" alt="Senior students using microscopes in the science laboratory" loading="lazy"></div><div class="in">
+      <h3>Senior secondary · SS 1–3</h3>
+      <div class="streams"><span class="chip">Science</span><span class="chip gold">Commercial</span><span class="chip green">Arts</span></div>
+      <ul><li>Practical lab work in Physics, Chemistry and Biology</li><li>Extra WAEC, NECO and JAMB preparation classes</li><li>Career guidance and university counselling</li></ul>
+      <a class="b b-line b-sm" href="{{ url_for('academics') }}#senior">See senior secondary</a></div></article>
+  </div>
+</div></section>
+
+<section class="sec"><div class="container">
+  <div class="head"><h2>Spaces built for learning by doing</h2></div>
+  <div class="facs">
+    {% for img, t, d in [('photos/lab.jpg','Science laboratory','Equipped for Physics, Chemistry and Biology practicals.'),('photos/ict.jpg','ICT laboratory','A computer for every student during practical lessons.'),('photos/library.jpg','Library','A quiet place to read, research and do homework.'),('photos/courtyard.jpg','Sports and assembly ground','A wide open ground for games, basketball and the yearly inter-house sports.')] %}
+    <div class="fac"><div class="arch-img"><img src="{{ url_for('static', filename='img/' ~ img) }}" alt="{{ t }}" loading="lazy"></div><h3>{{ t }}</h3><p>{{ d }}</p></div>
+    {% endfor %}
+  </div>
+  <p style="margin-top:20px"><a class="b b-line" href="{{ url_for('facilities') }}">See all facilities</a></p>
+</div></section>
+
+<section class="sec tint"><div class="container">
+  <div class="head"><h2>How to join God Dominion School</h2><p class="lead">The whole process takes about two weeks and starts online.</p></div>
+  <ol class="steps">
+    <li><b>Apply online</b><span>Fill the admission form. You get an application number straight away.</span></li>
+    <li><b>Entrance exam</b><span>We invite your child for a short test in English and Mathematics.</span></li>
+    <li><b>Meet the school</b><span>A brief chat with parents and the child, and a tour of the campus.</span></li>
+    <li><b>Receive admission</b><span>Pay the acceptance fee and your child gets a portal login.</span></li>
+  </ol>
+  <p style="margin-top:28px"><a class="b b-royal" href="{{ url_for('admissions') }}#apply">Start an application</a> <a class="b b-line" href="{{ url_for('admission_status') }}">Track an application</a></p>
+</div></section>
+
+<section class="sec dark pp"><div class="container split">
+  <div>
+    <h2>Your child's school day, on your phone</h2>
+    <p class="lead" style="color:#d9d2f3">Every parent gets their own portal login. See all your children in one place and hear from the school the moment something happens.</p>
+    <ul class="pplist">
+      <li><b>Pay fees online</b><span>Card, bank transfer or USSD through Flutterwave. Part payments allowed, receipt emailed instantly.</span></li>
+      <li><b>Absence alerts</b><span>An email the same morning if your child is marked absent or late.</span></li>
+      <li><b>Results and report cards</b><span>Emailed when results are published. Print the full report card, with third-term cumulative averages.</span></li>
+      <li><b>Homework and timetable</b><span>See what was set, when it is due, and today's lessons.</span></li>
+    </ul>
+    <p style="margin-top:22px"><a class="b b-gold" href="{{ url_for('login') }}">Log in to the parent portal</a></p>
+  </div>
+  <div class="pp-phone" aria-hidden="true">
+    <div class="pp-screen">
+      <div class="pp-top"><img src="{{ url_for('static', filename='img/crest.png') }}" alt=""><b>My children</b></div>
+      <div class="pp-card"><div class="pp-row"><span class="pp-av">A</span><span><b>Adaeze O.</b><small>JSS 2A</small></span></div>
+        <div class="pp-stats"><span><small>Fees balance</small><b class="g">₦0.00</b></span><span><small>Attendance</small><b>97%</b></span></div>
+        <div class="pp-note">📄 First Term result is out</div></div>
+      <div class="pp-card"><div class="pp-row"><span class="pp-av">T</span><span><b>Tunde O.</b><small>SS 1A</small></span></div>
+        <div class="pp-stats"><span><small>Fees balance</small><b class="r">₦42,500</b></span><span><small>Attendance</small><b>92%</b></span></div>
+        <div class="pp-pay">Pay ₦42,500 now</div></div>
+      <div class="pp-toast">✉️ Tunde was marked late today, 8:12am</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="container ev-wrap">
+  <div>
+    <h2>Coming up</h2>
+    {% for e in events %}{{ event_row(e) }}{% else %}<p class="lead">No upcoming events right now. Check back soon.</p>{% endfor %}
+    <p style="margin-top:20px"><a class="b b-line b-sm" href="{{ url_for('news_list', kind='event') }}">Full school calendar</a></p>
+  </div>
+  <div>
+    <h2>Latest news</h2>
+    <div class="news news-sm">
+      {% for p in news %}
+      <a class="card-n row-n" href="{{ url_for('news_detail', slug=p.slug) }}" style="border:0;background:none"><div class="pic"><img src="{{ post_img(p) }}" alt="" loading="lazy"></div>
+        <div><time style="font-size:.85rem;color:var(--royal);font-weight:700">{{ p.created_at.strftime('%d %B %Y') }}</time><h3 style="font-size:1.1rem;margin:4px 0">{{ p.title }}</h3><p style="font-size:.94rem;color:var(--soft);margin:0">{{ p.summary }}</p></div></a>
+      {% else %}<p>No news yet.</p>{% endfor %}
+    </div>
+  </div>
+</div></section>
+
+{% if gallery %}
+<section class="sec tint"><div class="container">
+  <div class="head"><h2>Life at God Dominion</h2></div>
+  <div class="gal" data-gallery>
+    {% for g in gallery[:7] %}<button type="button" class="{{ 'wide' if loop.first and gallery|length >= 7 }}" data-src="{{ g.image_url }}" data-cap="{{ g.caption }}"><img src="{{ g.image_url }}" alt="{{ g.caption }}" loading="lazy"><span>{{ g.caption }}</span></button>{% endfor %}
+  </div>
+  <p style="margin-top:22px"><a class="b b-line" href="{{ url_for('gallery') }}">Open the gallery</a></p>
+</div></section>
+{% endif %}
+
+{% if tests %}
+<section class="sec"><div class="container">
+  <div class="head"><h2>What families say</h2></div>
+  <div class="quotes">
+    {% for t in tests[:3] %}<blockquote class="quote" style="margin:0"><div class="mark">“</div><p>{{ t.text }}</p><footer><span class="av">{{ t.name[:1] }}</span><span><b>{{ t.name }}</b><small>{{ t.role }}</small></span></footer></blockquote>{% endfor %}
+  </div>
+</div></section>
+{% endif %}
+
+{{ cta_band() }}
+{% include "site/_lightbox.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+// count up once when the numbers come into view
+(function(){const box=document.getElementById('nums');if(!box||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const io=new IntersectionObserver(es=>{if(!es[0].isIntersecting)return;io.disconnect();
+  box.querySelectorAll('[data-to]').forEach(el=>{const to=+el.dataset.to||0,suf=el.dataset.suffix||'',t0=performance.now();
+   const step=t=>{const k=Math.min((t-t0)/1400,1),v=Math.round(to*(1-Math.pow(1-k,3)));el.textContent=v+suf;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})},{threshold:.4});
+ io.observe(box)})();
+</script>
+{% endblock %}

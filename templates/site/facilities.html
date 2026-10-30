@@ -1,0 +1,23 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head, cta_band with context %}
+{% block title %}Facilities · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Our facilities', 'Practical learning needs proper spaces. Here is where our students learn, play and grow.', 'Facilities') }}
+{% set facs = [
+  ('photos/lab.jpg','Science laboratories','Separate bench spaces for Physics, Chemistry and Biology, with apparatus and reagents for every WAEC practical. Students do hands-on experiments from JSS 1.',['Fume-safe chemistry benches','Microscopes and specimens','Practicals every week for SS classes']),
+  ('photos/ict.jpg','ICT laboratory','Networked computers with internet access, used for weekly computer lessons, coding club and computer-based test practice for JAMB.',['One student per computer','CBT practice for JAMB','Backup power supply']),
+  ('photos/library.jpg','Library and reading room','A growing collection of textbooks, novels, past questions and reference books, with a quiet reading area.',['Recommended WAEC texts','Past question papers','Open after school for study']),
+  ('photos/classroom.jpg','Classrooms','Bright, ventilated classrooms with comfortable desks, whiteboards and a maximum of 30 students per class.',['Small class sizes','Well-lit and ventilated','Teaching aids in every room']),
+  ('photos/courtyard.jpg','School grounds','A large open courtyard between the classroom blocks, used for assembly, basketball, football and inter-house sports.',['Basketball hoop','Assembly ground','Shaded corridors on two floors']),
+  ('photos/gate.jpg','Front gate and security','A walled compound with one main entrance, so students stay safe and visitors are seen by staff.',['Perimeter fence','Gate kept by staff during school hours','Motto boards that greet students every morning']),
+] %}
+<section class="sec"><div class="container">
+{% for img, t, d, pts in facs %}
+  <div class="split" style="margin-bottom:80px;{{ 'direction:rtl' if loop.index is even }}">
+    <div class="arch-img" style="direction:ltr;aspect-ratio:4/3.6"><img src="{{ url_for('static', filename='img/' ~ img) }}" alt="{{ t }}" loading="lazy"></div>
+    <div style="direction:ltr"><h2>{{ t }}</h2><p class="lead">{{ d }}</p><ul class="ticks">{% for p in pts %}<li>{{ p }}</li>{% endfor %}</ul></div>
+  </div>
+{% endfor %}
+</div></section>
+{{ cta_band() }}
+{% endblock %}

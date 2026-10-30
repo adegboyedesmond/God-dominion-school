@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb" style="align-items:center">{% if st.photo_url %}<img src="{{ st.photo_url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover">{% endif %}<h1 style="margin:0;flex:1">{{ st.user.full_name }} <span class="muted small">{{ st.reg_no }}</span></h1></div>
+<div class="grid g2">
+  <form method="post" class="card" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Details</h2>
+    <div class="field"><label>Full name</label><input name="full_name" value="{{ st.user.full_name }}" required></div>
+    <div class="row"><div class="field"><label>Class</label><select name="class_id"><option value="">—</option>{% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if st.class_id==c.id }}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Status</label><select name="status">{% for s in ['active','graduated','withdrawn'] %}<option {{ 'selected' if st.status==s }}>{{ s }}</option>{% endfor %}</select></div></div>
+    <div class="row"><div class="field"><label>Gender</label><select name="gender">{% for gd in ['M','F'] %}<option {{ 'selected' if st.gender==gd }}>{{ gd }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Date of birth</label><input type="date" name="dob" value="{{ st.dob or '' }}"></div></div>
+    <div class="row"><div class="field"><label>Student email</label><input name="email" value="{{ st.user.email or '' }}"></div><div class="field"><label>Student phone</label><input name="phone" value="{{ st.user.phone or '' }}"></div></div>
+    <div class="row"><div class="field"><label>Parent / guardian</label><input name="guardian_name" value="{{ st.guardian_name or '' }}"></div><div class="field"><label>Parent phone</label><input name="guardian_phone" value="{{ st.guardian_phone or '' }}"></div></div>
+    <div class="field"><label>Parent email (receives receipts, results, absence alerts)</label><input type="email" name="guardian_email" value="{{ st.guardian_email or '' }}"></div>
+    <div class="field"><label>Address</label><input name="address" value="{{ st.address or '' }}"></div>
+    <div class="row"><div class="field"><label>Blood group</label><input name="blood_group" value="{{ st.blood_group or '' }}" placeholder="O+"></div><div class="field"><label>Medical note</label><input name="medical_note" value="{{ st.medical_note or '' }}" placeholder="Allergies, conditions"></div></div>
+    <div class="field"><label>Passport photo</label><input type="file" name="photo" accept="image/*"></div>
+    <button class="btn">Save</button>
+  </form>
+  <div>
+    <div class="card">
+      <h2>Fees — {{ cur_term }}</h2>
+      <p>Total {{ total|money }} · Paid <b style="color:var(--ok)">{{ paid|money }}</b> · Balance <b style="color:var(--bad)">{{ bal|money }}</b></p>
+      <div class="tbl"><table><tbody>{% for p in pays %}<tr><td class="small">{{ (p.paid_at or p.created_at).strftime('%d %b %Y') }}<br>{{ p.reference }}</td><td>{{ p.purpose }}</td><td>{{ p.amount|money }}</td><td><span class="badge {{ 'ok' if p.status=='success' }}">{{ p.status }}</span></td>
+        <td>{% if p.status=='success' %}<a class="small" href="{{ url_for('receipt', ref=p.reference) }}">receipt</a>{% endif %}</td></tr>{% else %}<tr><td class="muted">No payments.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+    <div class="card">
+      <h2>Actions</h2>
+      <a class="btn sm alt" href="{{ url_for('admin_student_report', sid=st.id) }}">View report card ({{ cur_term }})</a>
+      <form method="post" class="inline" onsubmit="return confirm('Reset password to reg no?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reset"><button class="btn sm alt">Reset password</button></form>
+      <a class="btn sm alt" target="_blank" href="{{ url_for('admin_idcards', sid=st.id) }}">ID card</a>
+      <a class="btn sm alt" href="{{ url_for('attendance_student', sid=st.id) }}">Attendance</a>
+    </div>
+    <div class="card">
+      <h2>Parent portal</h2>
+      {% if st.parent %}<p><span class="badge ok">Linked</span> {{ st.parent.full_name }} · login <b>{{ st.parent.username }}</b></p>
+      {% else %}<p class="muted small">No parent login yet. Parents can pay fees, see attendance, homework and results for all their children.</p>{% endif %}
+      <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="parent"><button class="btn sm">{{ 'Reset & email parent login' if st.parent else 'Create & email parent login' }}</button></form>
+    </div>
+  </div>
+</div>
+{% endblock %}

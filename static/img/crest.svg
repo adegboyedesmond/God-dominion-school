@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 230">
+  <title>God-Dominion College badge</title>
+  <defs>
+    <path id="arcTop" d="M62 46 Q120 30 178 46"/>
+    <path id="ribbonArc" d="M22 182 Q120 218 218 182"/>
+  </defs>
+  <!-- ribbon tails -->
+  <path d="M6 168 L44 160 L50 196 L14 202 L24 186 Z" fill="#dfe3ea" stroke="#9aa1ad" stroke-width="2"/>
+  <path d="M234 168 L196 160 L190 196 L226 202 L216 186 Z" fill="#dfe3ea" stroke="#9aa1ad" stroke-width="2"/>
+  <!-- outer shield -->
+  <path d="M40 18 Q120 4 200 18 Q206 60 200 108 Q192 162 120 196 Q48 162 40 108 Q34 60 40 18 Z" fill="#f4f5f8" stroke="#8a91a0" stroke-width="3"/>
+  <!-- inner shield -->
+  <path d="M74 60 L166 60 L166 112 Q164 146 120 168 Q76 146 74 112 Z" fill="#f4f5f8" stroke="#6d7482" stroke-width="2.5"/>
+  <path d="M120 60 V166 M74 110 H166" stroke="#6d7482" stroke-width="2.5"/>
+  <!-- quarter 1: quill -->
+  <path d="M110 66 Q92 76 86 102 L90 104 Q98 82 112 70 Z" fill="#9aa1ad"/>
+  <path d="M86 102 L82 108" stroke="#6d7482" stroke-width="2"/>
+  <!-- quarter 2: book -->
+  <path d="M128 76 Q143 70 143 76 Q143 70 158 76 V98 Q143 92 143 98 Q143 92 128 98 Z" fill="#fff" stroke="#3a3f4a" stroke-width="2"/>
+  <path d="M143 76 V98" stroke="#3a3f4a" stroke-width="2"/>
+  <rect x="131" y="81" width="9" height="2" fill="#3a3f4a"/><rect x="146" y="81" width="9" height="2" fill="#3a3f4a"/>
+  <!-- quarter 3: letter A -->
+  <text x="97" y="148" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="#2b2f38">A</text>
+  <!-- quarter 4: lamp of knowledge -->
+  <path d="M128 132 Q143 144 160 132 Q156 124 143 126 Q132 126 128 132 Z" fill="#6d7482"/>
+  <path d="M160 132 L166 128" stroke="#6d7482" stroke-width="3" stroke-linecap="round"/>
+  <path d="M143 124 Q138 116 143 108 Q148 116 143 124 Z" fill="#e8a91c"/>
+  <!-- lettering -->
+  <text font-family="Arial, sans-serif" font-weight="800" font-size="15" fill="#2b2f38" letter-spacing="2"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">DOMINION</textPath></text>
+  <text font-family="Arial, sans-serif" font-weight="800" font-size="13" fill="#2b2f38" letter-spacing="3" transform="translate(57 104) rotate(-90)" text-anchor="middle">GOD</text>
+  <text font-family="Arial, sans-serif" font-weight="800" font-size="12" fill="#2b2f38" letter-spacing="1.5" transform="translate(183 104) rotate(90)" text-anchor="middle">COLLEGE</text>
+  <!-- motto ribbon -->
+  <path d="M28 166 Q120 202 212 166 L214 188 Q120 226 26 188 Z" fill="#c8285a" stroke="#8e1a3f" stroke-width="2"/>
+  <text font-family="Arial, sans-serif" font-weight="800" font-size="10.5" fill="#fff" letter-spacing=".2"><textPath href="#ribbonArc" startOffset="50%" text-anchor="middle">MOTTO: TRUTH AND PROVINCE</textPath></text>
+</svg>

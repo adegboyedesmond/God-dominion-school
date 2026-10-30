@@ -1,0 +1,3 @@
+{% extends "email/layout.html" %}{% block body %}<h2 style="margin:0 0 12px;color:#24124f;font-size:21px">We received your message</h2>
+<p>Dear {{ m.name }},</p><p>Thank you for contacting {{ S.school_name }} about <b>{{ m.subject }}</b>. Our office will reply within one working day.</p>
+<p style="background:#f6f3fd;padding:12px 14px;border-radius:8px;white-space:pre-line">{{ m.message }}</p>{% endblock %}

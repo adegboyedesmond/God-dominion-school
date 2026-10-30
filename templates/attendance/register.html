@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb" style="justify-content:space-between;align-items:flex-end">
+  <div><h1 style="margin:0">Attendance — {{ cl.name }}</h1><p class="muted" style="margin:4px 0 0">{{ day.strftime('%A %d %B %Y') }} · {{ cur_term }}</p></div>
+  <form method="get" class="row"><div class="field"><input type="date" name="day" value="{{ day.isoformat() }}" max="{{ today.isoformat() }}"></div><div class="field"><button class="btn sm alt">Go</button></div></form>
+</div>
+<div class="row mb" style="gap:6px">
+  {% for d, n in week %}<a class="btn sm {{ '' if d == day else 'alt' }}" href="?day={{ d.isoformat() }}" {% if d > today %}style="pointer-events:none;opacity:.4"{% endif %}>{{ d.strftime('%a %d') }} {% if n %}✓{% endif %}</a>{% endfor %}
+</div>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="day" value="{{ day.isoformat() }}">
+  <div class="row mb"><button type="button" class="btn sm alt" onclick="document.querySelectorAll('input[value=P]').forEach(r=>r.checked=true);count()">Mark everyone present</button>
+    <span class="small muted" id="cnt"></span></div>
+  <div class="tbl"><table class="att">
+    <thead><tr><th>#</th><th>Student</th><th class="center">Present</th><th class="center">Late</th><th class="center">Absent</th><th>This term</th></tr></thead>
+    <tbody>{% for st in students %}{% set cur = existing.get(st.id).status if existing.get(st.id) else '' %}{% set sm = summary.get(st.id) %}
+      <tr><td>{{ loop.index }}</td><td>{{ st.user.full_name }}<div class="small muted">{{ st.reg_no }}{% if not st.guardian_email %} · no parent email{% endif %}</div></td>
+        {% for v, c in [('P','ok'),('L','warn'),('A','bad')] %}<td class="center"><label class="pill {{ c }}"><input type="radio" name="s_{{ st.id }}" value="{{ v }}" {{ 'checked' if cur==v }} onchange="count()"><span>{{ v }}</span></label></td>{% endfor %}
+        <td class="small">{% if sm %}{{ sm.rate }}% · {{ sm.absent }} absent{% else %}<span class="muted">–</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="6" class="center muted">No students in this class.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if students %}<p class="mt"><button class="btn ok">💾 Save attendance</button>
+    {% if S.email_on_absence == '1' and day == today %}<span class="small muted"> Parents of absent or late students are emailed automatically.</span>{% endif %}</p>{% endif %}
+</form>
+<style>
+.pill{display:inline-flex;cursor:pointer;margin:0}.pill input{position:absolute;opacity:0}
+.pill span{display:grid;place-items:center;width:38px;height:34px;border-radius:8px;border:2px solid #ddd6f0;font-weight:700;color:#999}
+.pill.ok input:checked+span{background:var(--ok);border-color:var(--ok);color:#fff}
+.pill.warn input:checked+span{background:#e8a91c;border-color:#e8a91c;color:#2a2000}
+.pill.bad input:checked+span{background:var(--bad);border-color:var(--bad);color:#fff}
+.pill input:focus-visible+span{outline:3px solid #bcd7f3}
+</style>
+<script>
+function count(){const t=document.querySelectorAll('.att tbody tr').length,c=v=>document.querySelectorAll('input[value='+v+']:checked').length;
+document.getElementById('cnt').textContent=`${c('P')} present · ${c('L')} late · ${c('A')} absent · ${t-c('P')-c('L')-c('A')} not marked`}count();
+</script>
+{% endblock %}

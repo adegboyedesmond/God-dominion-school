@@ -1,0 +1,34 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head with context %}
+{% from "site/_icons.html" import icon %}
+{% block title %}Contact · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Contact us', 'Questions about admission, fees or a visit? Send a message or call the school office.', 'Contact') }}
+<section class="sec"><div class="container split" style="align-items:start">
+  <form class="form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input class="sr" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <h2 style="font-size:1.8rem">Send a message</h2>
+    <div class="fg">
+      <div class="f"><label for="n">Your name <span class="req">*</span></label><input id="n" name="name" required autocomplete="name"></div>
+      <div class="f"><label for="p">Phone</label><input id="p" name="phone" type="tel" autocomplete="tel"></div>
+      <div class="f"><label for="e">Email</label><input id="e" name="email" type="email" autocomplete="email"></div>
+      <div class="f"><label for="s">About</label><select id="s" name="subject">{% for x in ['Admission','Book a school visit','School fees','Results and portal','General'] %}<option>{{ x }}</option>{% endfor %}</select></div>
+      <div class="f full"><label for="m">Message <span class="req">*</span></label><textarea id="m" name="message" rows="5" required></textarea></div>
+    </div>
+    <button class="b b-royal" style="margin-top:14px">Send message</button>
+  </form>
+  <div>
+    <div class="box" style="margin-bottom:22px">
+      <ul class="plainlist">
+        <li><b>Address</b><br>{{ S.school_address }}</li>
+        <li><b>Phone</b><br><a href="tel:{{ S.school_phone|replace(' ','') }}">{{ S.school_phone }}</a>{% if S.school_phone2 %}, <a href="tel:{{ S.school_phone2|replace(' ','') }}">{{ S.school_phone2 }}</a>{% endif %}</li>
+        <li><b>Email</b><br><a href="mailto:{{ S.school_email }}">{{ S.school_email }}</a></li>
+        <li><b>Office hours</b><br>{{ S.office_hours }}</li>
+      </ul>
+      {% if S.whatsapp %}<a class="b b-sm" style="background:#25d366;color:#fff;margin-top:14px" href="https://wa.me/{{ S.whatsapp|replace('+','')|replace(' ','') }}" target="_blank" rel="noopener">Chat on WhatsApp</a>{% endif %}
+    </div>
+    <iframe class="map" title="Map showing the school's location" loading="lazy" src="https://maps.google.com/maps?q={{ S.map_query|urlencode }}&output=embed"></iframe>
+  </div>
+</div></section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Homework — {{ cs.subject.name }}, {{ cs.school_class.name }}</h1>
+<form method="post" enctype="multipart/form-data" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2>Set new homework</h2>
+  <div class="row"><div class="field" style="flex:3"><label>Title</label><input name="title" required maxlength="160" placeholder="Exercise 4.2, questions 1–10"></div>
+    <div class="field"><label>Due date</label><input type="date" name="due_date" min="{{ today.isoformat() }}"></div></div>
+  <div class="field"><label>Instructions</label><textarea name="details" rows="4"></textarea></div>
+  <div class="field"><label>Attach a worksheet (PDF, Word, image — optional)</label><input type="file" name="file"></div>
+  {% if S.email_on_homework == '1' %}<label style="display:flex;gap:8px;align-items:center;font-weight:400" class="mb"><input type="checkbox" name="notify" value="1" checked> Email parents about this homework</label>{% endif %}
+  <button class="btn">Post homework</button>
+</form>
+<div class="tbl"><table>
+  <thead><tr><th>Homework</th><th>Due</th><th>Posted</th><th></th></tr></thead>
+  <tbody>{% for h in items %}
+    <tr><td><b>{{ h.title }}</b>{% if h.details %}<div class="small muted" style="white-space:pre-line">{{ h.details[:200] }}</div>{% endif %}{% if h.file_url %}<a class="small" href="{{ h.file_url }}" target="_blank">📎 attachment</a>{% endif %}</td>
+      <td>{{ h.due_date.strftime('%a %d %b') if h.due_date else '—' }}</td><td class="small">{{ h.created_at.strftime('%d %b') }}</td>
+      <td><form method="post" onsubmit="return confirm('Remove this homework?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ h.id }}"><button class="btn sm bad">Remove</button></form></td></tr>
+  {% else %}<tr><td colspan="4" class="center muted">No homework set yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

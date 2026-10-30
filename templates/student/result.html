@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📄 Check & Print Result{% if parent_view %} — {{ st.user.full_name }}{% endif %}</h1>
+<div class="grid g2">
+  <div class="card">
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><label>Registration Number</label><input value="{{ st.reg_no }}" disabled></div>
+      <div class="row">
+        <div class="field"><label>Serial No</label><input name="serial" id="serial" required></div>
+        <div class="field"><label>PIN</label><input name="pin" id="pin" required inputmode="numeric"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Session</label><select name="session_id">{% for s in sessions %}<option value="{{ s.id }}" {{ 'selected' if cur_session and s.id==cur_session.id }}>{{ s.name }}</option>{% endfor %}</select></div>
+        <div class="field"><label>Term</label><select name="term">{% for t in TERMS %}<option {{ 'selected' if t==cur_term }}>{{ t }}</option>{% endfor %}</select></div>
+      </div>
+      <button class="btn" style="width:100%">View Result</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>My PINs</h2>
+    {% for c in cards %}
+      <div class="mb"><span class="pinbox">{{ c.serial }}</span> <span class="pinbox">{{ c.pin }}</span>
+        <div class="small muted">Used {{ c.used_count }}/{{ c.max_uses }}{% if c.term %} · {{ c.term }}{% endif %}
+        {% if c.used_count < c.max_uses %}· <a href="#" onclick="document.getElementById('serial').value='{{ c.serial }}';document.getElementById('pin').value='{{ c.pin }}';return false">use this</a>{% endif %}</div></div>
+    {% else %}<p class="muted">No PINs yet.</p>{% endfor %}
+    <form method="post" action="{{ url_for('pay_start') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="purpose" value="pin">{% if parent_view %}<input type="hidden" name="student_id" value="{{ st.id }}">{% endif %}
+      <button class="btn gold">Buy PIN online ({{ S.pin_price|float|money }})</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

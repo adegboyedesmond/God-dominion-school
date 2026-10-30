@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="{{ url_for('admin_admissions') }}">← All applications</a></p>
+<h1>{{ a.full_name }} <span class="badge {{ 'ok' if a.status=='admitted' else 'bad' if a.status=='declined' else 'warn' }}">{{ a.status }}</span></h1>
+<p class="muted">{{ a.app_no }} · submitted {{ a.created_at.strftime('%d %b %Y, %I:%M %p') }}
+{% if S.form_fee|float > 0 %} · form fee {% if a.form_paid %}<span class="badge ok">paid</span>{% else %}<span class="badge bad">not paid</span>{% endif %}{% endif %}
+{% if a.status == 'admitted' %} · <a href="{{ url_for('admission_letter', token=a.token) }}" target="_blank">Admission letter</a>{% endif %}</p>
+<div class="grid g2">
+  <div class="card">
+    {% if a.photo_url %}<img src="{{ a.photo_url }}" alt="" style="width:120px;height:140px;object-fit:cover;border-radius:8px;float:right">{% endif %}
+    <table>
+      <tr><th>Class sought</th><td>{{ a.class_sought }}</td></tr><tr><th>Gender</th><td>{{ a.gender }}</td></tr>
+      <tr><th>Date of birth</th><td>{{ a.dob or '-' }}</td></tr><tr><th>Previous school</th><td>{{ a.previous_school or '-' }}</td></tr>
+      <tr><th>Parent</th><td>{{ a.parent_name }} ({{ a.relationship }})</td></tr>
+      <tr><th>Phone</th><td><a href="tel:{{ a.phone }}">{{ a.phone }}</a> · <a target="_blank" href="https://wa.me/{{ a.phone|replace(' ','')|replace('+','') }}">WhatsApp</a></td></tr>
+      <tr><th>Email</th><td>{{ a.email or '-' }}</td></tr><tr><th>Address</th><td>{{ a.address or '-' }}</td></tr>
+      <tr><th>Heard from</th><td>{{ a.heard_from or '-' }}</td></tr><tr><th>Notes</th><td>{{ a.notes or '-' }}</td></tr>
+    </table>
+  </div>
+  <div>
+    <form method="post" class="card">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <h2>Update status</h2>
+      <p class="small muted">The parent sees the status, exam date and your message on the “Track application” page.</p>
+      <div class="field"><label>Status</label><select name="status">{% for s in statuses %}<option {{ 'selected' if a.status==s }}>{{ s }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Entrance exam date and time</label><input name="exam_date" value="{{ a.exam_date or '' }}" placeholder="Saturday 14 March, 9:00am"></div>
+      <div class="field"><label>Message to parent</label><textarea name="admin_note" rows="3">{{ a.admin_note or '' }}</textarea></div>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:400" class="mb"><input type="checkbox" name="notify" value="1" checked> Email the parent about this update{% if a.email %} ({{ a.email }}){% endif %}</label>
+      <button class="btn">Save</button>
+    </form>
+    <div class="card">
+      <h2>Enroll as student</h2>
+      {% if a.student_id %}<p><span class="badge ok">Enrolled</span> <a href="{{ url_for('admin_student_edit', sid=a.student_id) }}">Open student record</a></p>
+      {% else %}
+      <form method="post" class="row">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="enroll">
+        <div class="field"><label>New reg no</label><input name="reg_no" required placeholder="{{ S.school_short }}/{{ now.year }}/001"></div>
+        <div class="field"><label>Class</label><select name="class_id"><option value="">—</option>{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+        <div class="field"><button class="btn ok">Enroll</button></div>
+      </form>
+      <p class="small muted">Creates the student's portal account (password = reg no in lowercase) and a parent account for {{ a.email or 'the parent' }}, marks the application as admitted, and emails both logins and the admission letter to the parent.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

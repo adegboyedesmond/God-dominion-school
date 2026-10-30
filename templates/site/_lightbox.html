@@ -1,0 +1,14 @@
+<div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="x" aria-label="Close">×</button><button class="pv" aria-label="Previous photo">‹</button><button class="nx" aria-label="Next photo">›</button>
+  <figure><img alt=""><figcaption></figcaption></figure>
+</div>
+<script>
+(function(){const lb=document.getElementById('lb'),img=lb.querySelector('img'),cap=lb.querySelector('figcaption');let list=[],i=0,last;
+ const vis=()=>[...document.querySelectorAll('[data-gallery] button[data-src]')].filter(b=>!b.hidden);
+ const show=k=>{i=(k+list.length)%list.length;img.src=list[i].dataset.src;img.alt=cap.textContent=list[i].dataset.cap||''};
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-gallery] button[data-src]');if(!b)return;list=vis();last=b;show(list.indexOf(b));lb.classList.add('open');lb.querySelector('.x').focus()});
+ const close=()=>{lb.classList.remove('open');last&&last.focus()};
+ lb.querySelector('.x').onclick=close;lb.querySelector('.pv').onclick=()=>show(i-1);lb.querySelector('.nx').onclick=()=>show(i+1);
+ lb.addEventListener('click',e=>{if(e.target===lb)close()});
+ document.addEventListener('keydown',e=>{if(!lb.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')show(i-1);if(e.key==='ArrowRight')show(i+1)});})();
+</script>

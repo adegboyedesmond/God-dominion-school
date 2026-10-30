@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>👤 My Profile</h1>
+<div class="card" style="max-width:640px">
+  <table>
+    <tr><th>Full Name</th><td>{{ st.user.full_name }}</td></tr>
+    <tr><th>Reg No</th><td>{{ st.reg_no }}</td></tr>
+    <tr><th>Class</th><td>{{ st.school_class.name if st.school_class else '-' }}</td></tr>
+    <tr><th>Gender</th><td>{{ st.gender or '-' }}</td></tr>
+    <tr><th>Date of Birth</th><td>{{ st.dob or '-' }}</td></tr>
+    <tr><th>Email</th><td>{{ st.user.email or '-' }}</td></tr>
+    <tr><th>Guardian</th><td>{{ st.guardian_name or '-' }} {{ st.guardian_phone or '' }}</td></tr>
+    <tr><th>Address</th><td>{{ st.address or '-' }}</td></tr>
+    <tr><th>Status</th><td><span class="badge ok">{{ st.status }}</span></td></tr>
+  </table>
+  <p class="small muted mt">To correct any detail, contact the school office.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Report Card – {{ r.student.user.full_name }}{% endblock %}
+{% block content %}
+<div class="noprint" style="max-width:900px;margin:0 auto;display:flex;gap:8px;justify-content:space-between;align-items:center">
+  <span class="muted small">{% if r.card %}PIN usage: {{ r.card.used_count }} of {{ r.card.max_uses }}{% endif %}</span>
+  <span><button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <a class="btn alt" href="{{ request.referrer or url_for('home') }}">Back</a></span>
+</div>
+<div class="paper">
+  <div class="rhead">
+    <img src="{{ S.logo_url or url_for('static', filename='img/crest.svg') }}" alt="School badge" style="object-fit:contain">
+    <div class="c">
+      <h1>{{ S.school_name }}</h1>
+      <div class="small">{{ S.school_address }}</div>
+      <div class="small">{{ S.school_phone }} · {{ S.school_email }}</div>
+      <div class="small"><em>Motto: {{ S.school_motto }}</em></div>
+    </div>
+  </div>
+  <div class="rtitle">STUDENT'S TERMINAL REPORT — {{ r.term|upper }}, {{ r.session.name }} SESSION</div>
+  {% set st = r.student %}{% set rm = r.remark %}{% set cum = r.cumulative is not none %}
+  {% set d_open = rm.days_open if rm and rm.days_open else (r.att.open if r.att else '-') %}
+  {% set d_pres = rm.days_present if rm and rm.days_present else (r.att.present if r.att else '-') %}
+  <table class="info mb">
+    <tr><td rowspan="5" style="width:96px;text-align:center;vertical-align:middle">{% if st.photo_url %}<img src="{{ st.photo_url }}" alt="" style="width:84px;height:100px;object-fit:cover;border:1px solid #ccc">{% else %}<div style="width:84px;height:100px;border:1px dashed #aaa;display:grid;place-items:center;font-size:.7rem;color:#888;margin:auto">PHOTO</div>{% endif %}</td>
+      <td><b>Name:</b> {{ st.user.full_name }}</td><td><b>Reg No:</b> {{ st.reg_no }}</td><td><b>Class:</b> {{ st.school_class.name if st.school_class }}</td></tr>
+    <tr><td><b>Gender:</b> {{ st.gender or '-' }}</td><td><b>No. in Class:</b> {{ r.n_in_class }}</td><td><b>Position:</b> {{ r.position|ordinal }}</td></tr>
+    <tr><td><b>Total Score:</b> {{ r.total }}</td><td><b>Average:</b> {{ r.average }}%</td><td><b>Overall Grade:</b> {{ r.overall_grade }}</td></tr>
+    <tr><td><b>Days Open:</b> {{ d_open }}</td><td><b>Days Present:</b> {{ d_pres }}</td><td><b>Next Term Begins:</b> {{ r.next_term_begins or '-' }}</td></tr>
+    {% if cum %}<tr><td colspan="3"><b>Cumulative (annual) average:</b> {{ r.cumulative }}% · {{ 'Promoted to the next class' if r.cumulative >= 40 else 'Advised to repeat' }}</td></tr>{% else %}<tr><td colspan="3"></td></tr>{% endif %}
+  </table>
+  <table class="rt">
+    <thead><tr><th>Subject</th><th>CA1<br>({{ S.ca1_max }})</th><th>CA2<br>({{ S.ca2_max }})</th><th>Exam<br>({{ S.exam_max }})</th><th>Total<br>(100)</th><th>Grade</th>{% if cum %}<th>1st<br>Term</th><th>2nd<br>Term</th><th>Cum.<br>Avg</th><th>Cum.<br>Grade</th>{% endif %}<th>Pos.</th><th>Class<br>Avg</th><th>High</th><th>Low</th><th>Remark</th></tr></thead>
+    <tbody>
+    {% for x in r.rows %}
+      <tr><td>{{ x.subject }}</td><td>{{ x.ca1|round(1) }}</td><td>{{ x.ca2|round(1) }}</td><td>{{ x.exam|round(1) }}</td><td><b>{{ x.total }}</b></td><td>{{ x.grade }}</td>{% if cum %}<td>{{ x.t1 if x.t1 is not none else '-' }}</td><td>{{ x.t2 if x.t2 is not none else '-' }}</td><td><b>{{ x.cum }}</b></td><td>{{ x.cum_grade }}</td>{% endif %}<td>{{ x.position }}</td><td>{{ x.avg }}</td><td>{{ x.high }}</td><td>{{ x.low }}</td><td>{{ x.remark }}</td></tr>
+    {% else %}<tr><td colspan="15" class="center">No scores recorded.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <div class="grid g2 mt">
+    <table class="rt">
+      <tr><th colspan="2">Affective Traits (1–5)</th></tr>
+      <tr><td>Punctuality</td><td>{{ rm.punctuality if rm and rm.punctuality else '-' }}</td></tr>
+      <tr><td>Neatness</td><td>{{ rm.neatness if rm and rm.neatness else '-' }}</td></tr>
+      <tr><td>Conduct</td><td>{{ rm.conduct if rm and rm.conduct else '-' }}</td></tr>
+    </table>
+    <table class="rt">
+      <tr><th colspan="2">Grading Key</th></tr>
+      <tr><td colspan="2">75–100 A1 Excellent · 70–74 B2 Very Good</td></tr>
+      <tr><td colspan="2">65–69 B3 Good · 50–64 C4–C6 Credit</td></tr>
+      <tr><td colspan="2">45–49 D7 · 40–44 E8 Pass · 0–39 F9 Fail</td></tr>
+    </table>
+  </div>
+  <table class="info mt">
+    <tr><td><b>Form Teacher's Comment:</b> {{ rm.teacher_comment if rm and rm.teacher_comment else '—' }}</td></tr>
+    <tr><td><b>Principal's Comment:</b> {{ rm.principal_comment if rm and rm.principal_comment else '—' }}</td></tr>
+  </table>
+  <div class="sign">
+    <div>Form Teacher{% if st.school_class and st.school_class.form_teacher %}<br><b>{{ st.school_class.form_teacher.full_name }}</b>{% endif %}</div>
+    <div>Principal<br><b>{{ S.principal_name }}</b></div>
+    <div>Date Printed<br><b>{{ r.generated.strftime('%d %b %Y') }}</b></div>
+  </div>
+  {% if r.card %}<p class="small muted center mt">Verified with card {{ r.card.serial }}</p>{% endif %}
+</div>
+{% endblock %}

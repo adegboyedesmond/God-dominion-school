@@ -1,0 +1,19 @@
+{% extends "site/layout.html" %}
+{% block title %}Portal login · {{ S.school_name }}{% endblock %}
+{% block main %}
+<section class="sec tint"><div class="container split" style="align-items:center">
+  <div>
+    <h1 style="font-size:clamp(2rem,4vw,3rem)">School portal</h1>
+    <p class="lead">Students log in with their registration number to pay fees, buy result PINs and print report cards. Teachers log in to upload scores.</p>
+    <ul class="ticks"><li>Pay school fees and print receipts</li><li>Check and print termly results</li><li>Teachers: enter CA and exam scores</li></ul>
+  </div>
+  <form class="form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2 style="font-size:1.6rem">Log in</h2>
+    <div class="f"><label for="u">Registration number or username</label><input id="u" name="username" required autofocus autocomplete="username"></div>
+    <div class="f" style="margin-top:14px"><label for="pw">Password</label><input id="pw" name="password" type="password" required autocomplete="current-password"></div>
+    <button class="b b-royal" style="margin-top:18px;width:100%;justify-content:center">Log in</button>
+    <p style="margin-top:16px;font-size:.95rem">Forgot your password? Ask the school office to reset it. Only want a result? <a href="{{ url_for('public_result') }}">Check with a PIN</a>.</p>
+  </form>
+</div></section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "site/layout.html" %}
+{% block title %}Application received · {{ S.school_name }}{% endblock %}
+{% block main %}
+<section class="sec tint"><div class="container" style="max-width:720px">
+  <div class="form" style="text-align:center">
+    <img src="{{ url_for('static', filename='img/crest.svg') }}" alt="" width="80" style="margin:0 auto 16px">
+    <h1 style="font-size:2.2rem">Application received</h1>
+    <p class="lead" style="margin-inline:auto">Thank you, {{ a.parent_name }}. We have received {{ a.full_name }}'s application for {{ a.class_sought }}.</p>
+    <p>Your application number is</p>
+    <p style="font:800 2rem var(--display);color:var(--royal);letter-spacing:.02em">{{ a.app_no }}</p>
+    <p style="margin-inline:auto">We have emailed a confirmation to <b>{{ a.email }}</b>. The exam date and the admission decision will also come by email and phone.</p>
+    {% if form_fee > 0 and not a.form_paid %}
+      <div style="background:#fdf1d3;border-radius:14px;padding:16px 18px;margin:14px 0">
+        <b>Pay the admission form fee: {{ form_fee|money }}</b>
+        <p style="margin:6px 0 10px;font-size:.95rem">Your application moves to review once the form fee is paid. Card, bank transfer or USSD.</p>
+        <form method="post" action="{{ url_for('admission_pay', token=a.token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="b b-gold">Pay {{ form_fee|money }} now</button></form>
+      </div>
+    {% elif form_fee > 0 %}<p><span style="background:#e3f4ec;color:#17694a;padding:4px 12px;border-radius:999px;font-weight:700;font-size:.9rem">Form fee paid ✓</span></p>{% endif %}
+    <p><a class="b b-royal" href="{{ url_for('admission_status', t=a.token) }}">Track my application</a> <button class="b b-line" onclick="print()">Print this page</button></p>
+  </div>
+</div></section>
+{% endblock %}

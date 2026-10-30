@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Remarks & Attendance — {{ cl.name }}</h1>
+<p class="muted">{{ cur_session.name }} · {{ cur_term }} · Traits are rated 1 (poor) to 5 (excellent).</p>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row mb"><div class="field" style="max-width:200px"><label>Days school opened (fill all)</label><input type="number" id="allopen" min="0"></div>
+    <div class="field"><button type="button" class="btn sm alt" onclick="document.querySelectorAll('.dopen').forEach(i=>i.value=document.getElementById('allopen').value)">Apply to all</button></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Student</th><th>Avg / Pos</th><th>Days Open</th><th>Present</th><th>Punct.</th><th>Neat.</th><th>Conduct</th><th style="min-width:220px">Form Teacher Comment</th>{% if user.role=='admin' %}<th style="min-width:220px">Principal Comment</th>{% endif %}</tr></thead>
+    <tbody>{% for st in students %}{% set r = remarks.get(st.id) %}{% set d = data.get(st.id) %}
+      <tr><td>{{ st.user.full_name }}<div class="small muted">{{ st.reg_no }}</div></td>
+        <td>{{ d.average if d else '-' }}<div class="small muted">{{ d.position|ordinal if d and d.position else '' }}</div></td>
+        <td><input class="dopen" type="number" min="0" name="days_open_{{ st.id }}" value="{{ r.days_open if r else '' }}"></td>
+        <td><input type="number" min="0" name="days_present_{{ st.id }}" value="{{ r.days_present if r else '' }}"></td>
+        {% for f in ['punctuality','neatness','conduct'] %}
+        <td><select name="{{ f }}_{{ st.id }}" style="min-width:56px"><option></option>{% for v in ['5','4','3','2','1'] %}<option {{ 'selected' if r and r[f]==v }}>{{ v }}</option>{% endfor %}</select></td>
+        {% endfor %}
+        <td><input name="tc_{{ st.id }}" value="{{ r.teacher_comment if r else '' }}" list="cm" maxlength="500"></td>
+        {% if user.role=='admin' %}<td><input name="pc_{{ st.id }}" value="{{ r.principal_comment if r else '' }}" list="cm" maxlength="500"></td>{% endif %}</tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <datalist id="cm"><option>An excellent result, keep it up.</option><option>A very good performance.</option><option>Good result, but can do better.</option><option>Fair result, needs to work harder.</option><option>Poor result, should sit up.</option></datalist>
+  <p class="mt"><button class="btn ok">💾 Save Remarks</button></p>
+</form>
+{% endblock %}

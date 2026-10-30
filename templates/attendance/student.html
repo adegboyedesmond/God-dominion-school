@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Attendance — {{ st.user.full_name }}</h1>
+<p class="muted">{{ st.reg_no }} · {{ st.school_class.name if st.school_class }} · {{ cur_session.name }} {{ cur_term }}</p>
+{% if summary %}
+<div class="grid g4 mb">
+  <div class="stat"><div class="n">{{ summary.rate }}%</div><div class="l">Attendance rate</div></div>
+  <div class="stat"><div class="n">{{ summary.present }}/{{ summary.open }}</div><div class="l">Days present</div></div>
+  <div class="stat"><div class="n" style="color:var(--bad)">{{ summary.absent }}</div><div class="l">Days absent</div></div>
+  <div class="stat"><div class="n" style="color:#b98100">{{ summary.late }}</div><div class="l">Days late</div></div>
+</div>
+{% endif %}
+<div class="tbl"><table>
+  <thead><tr><th>Date</th><th>Status</th></tr></thead>
+  <tbody>{% for r in recs %}<tr><td>{{ r.day.strftime('%A %d %B %Y') }}</td><td>{% if r.status=='P' %}<span class="badge ok">Present</span>{% elif r.status=='L' %}<span class="badge warn">Late</span>{% else %}<span class="badge bad">Absent</span>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="2" class="muted center">No attendance recorded this term yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>⬆️ Promote / Graduate Students</h1>
+<form method="get" class="row card">
+  <div class="field"><label>From class</label><select name="from_id" required><option value="">—</option>{% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if frm==c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn">Load Students</button></div>
+</form>
+{% if frm %}
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="from_id" value="{{ frm }}">
+  <div class="row mb">
+    <div class="field"><label>Move selected to</label><select name="to_id" required>{% for c in classes if c.id|string != frm %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}<option value="graduate">🎓 Graduate (leave school)</option></select></div>
+    <div class="field"><button class="btn ok" onclick="return confirm('Move selected students?')">Move Students</button></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th><input type="checkbox" checked onclick="document.querySelectorAll('.pk').forEach(c=>c.checked=this.checked)"></th><th>Student</th><th>3rd Term Avg</th><th>Position</th></tr></thead>
+    <tbody>{% for s in students %}{% set d = data.get(s.id) %}
+      <tr><td><input type="checkbox" class="pk" name="student_ids" value="{{ s.id }}" checked></td><td>{{ s.user.full_name }} <span class="small muted">{{ s.reg_no }}</span></td>
+        <td>{{ d.average if d and d.count else '-' }}</td><td>{{ d.position|ordinal if d and d.position else '-' }}</td></tr>
+    {% else %}<tr><td colspan="4" class="muted center">No active students.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small muted mt">Untick students who are repeating. Previous results stay attached to the class they were in.</p>
+</form>
+{% endif %}
+{% endblock %}

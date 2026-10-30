@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}{{ S.school_name }}{% endblock %}</title>
+<link rel="icon" href="{{ S.logo_url or url_for('static', filename='img/crest.svg') }}">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>h1,h2,h3,.brand,.stat .n,.rhead h1{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif}.brand img{background:none;border-radius:0}</style>
+</head>
+<body>
+{% macro crest(cls='') %}<img src="{{ S.logo_url or url_for('static', filename='img/crest.svg') }}" alt="" class="{{ cls }}" style="object-fit:contain">{% endmacro %}
+<header class="topbar">
+  {% if user %}<button class="menu-btn" onclick="document.querySelector('.side').classList.toggle('open')">☰</button>{% endif %}
+  <a class="brand" href="{{ url_for('home') }}">{{ crest() }} <span>{{ S.school_name }}</span></a>
+  <span class="sp"></span>
+  {% if user %}
+    <span class="who">{{ user.full_name }} · {{ user.role|title }}</span>
+    <a class="btn sm alt" href="{{ url_for('logout') }}">Logout</a>
+  {% else %}
+    <a class="btn sm gold" href="{{ url_for('public_result') }}">Check Result</a>
+    <a class="btn sm alt" href="{{ url_for('login') }}">Login</a>
+  {% endif %}
+</header>
+{% if user %}
+<div class="shell">
+  <nav class="side">
+    {% set ep = request.endpoint %}
+    {% if user.role == 'admin' %}
+      <div class="sec">Overview</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'on' if ep=='admin_dashboard' }}">📊 Dashboard</a>
+      <div class="sec">Academics</div>
+      <a href="{{ url_for('admin_students') }}" class="{{ 'on' if ep.startswith('admin_student') }}">🎓 Students</a>
+      <a href="{{ url_for('admin_teachers') }}" class="{{ 'on' if ep=='admin_teachers' }}">👩‍🏫 Teachers</a>
+      <a href="{{ url_for('admin_classes') }}" class="{{ 'on' if ep=='admin_classes' }}">🏫 Classes</a>
+      <a href="{{ url_for('admin_subjects') }}" class="{{ 'on' if ep=='admin_subjects' }}">📚 Subjects & Assignment</a>
+      <a href="{{ url_for('admin_results') }}" class="{{ 'on' if ep in ('admin_results','broadsheet','enter_scores','class_remarks') }}">📝 Results</a>
+      <a href="{{ url_for('admin_attendance') }}" class="{{ 'on' if ep in ('admin_attendance','attendance_register','attendance_student') }}">🗓️ Attendance</a>
+      <a href="{{ url_for('admin_timetable') }}" class="{{ 'on' if ep in ('admin_timetable','timetable_view') }}">🕘 Timetable</a>
+      <a href="{{ url_for('admin_promote') }}" class="{{ 'on' if ep=='admin_promote' }}">⬆️ Promotion</a>
+      <a href="{{ url_for('admin_idcards') }}" class="{{ 'on' if ep=='admin_idcards' }}">🪪 ID Cards</a>
+      <div class="sec">Finance</div>
+      <a href="{{ url_for('admin_fees') }}" class="{{ 'on' if ep=='admin_fees' }}">💰 Fee Setup</a>
+      <a href="{{ url_for('admin_payments') }}" class="{{ 'on' if ep=='admin_payments' }}">🧾 Payments & Debtors</a>
+      <a href="{{ url_for('admin_pins') }}" class="{{ 'on' if ep=='admin_pins' }}">🔑 Result PINs</a>
+      <div class="sec">Website</div>
+      <a href="{{ url_for('admin_admissions') }}" class="{{ 'on' if ep in ('admin_admissions','admin_admission') }}">📥 Admissions {% if badge.apps %}<span class="badge warn">{{ badge.apps }}</span>{% endif %}</a>
+      <a href="{{ url_for('admin_messages') }}" class="{{ 'on' if ep=='admin_messages' }}">✉️ Messages {% if badge.msgs %}<span class="badge warn">{{ badge.msgs }}</span>{% endif %}</a>
+      <a href="{{ url_for('admin_posts') }}" class="{{ 'on' if ep=='admin_posts' }}">📰 News &amp; Events</a>
+      <a href="{{ url_for('admin_gallery') }}" class="{{ 'on' if ep=='admin_gallery' }}">🖼️ Gallery</a>
+      <a href="{{ url_for('admin_testimonials') }}" class="{{ 'on' if ep=='admin_testimonials' }}">💬 Testimonials</a>
+      <a href="{{ url_for('admin_website') }}" class="{{ 'on' if ep=='admin_website' }}">🌐 Website Content</a>
+      <a href="{{ url_for('home') }}" target="_blank">↗ View Website</a>
+      <div class="sec">School</div>
+      <a href="{{ url_for('admin_announcements') }}" class="{{ 'on' if ep=='admin_announcements' }}">📣 Announcements</a>
+      <a href="{{ url_for('admin_emails') }}" class="{{ 'on' if ep=='admin_emails' }}">📨 Email Log</a>
+      <a href="{{ url_for('admin_settings') }}" class="{{ 'on' if ep=='admin_settings' }}">⚙️ Settings</a>
+    {% elif user.role == 'teacher' %}
+      <a href="{{ url_for('teacher_dashboard') }}" class="{{ 'on' if ep=='teacher_dashboard' }}">🏠 Dashboard</a>
+      <a href="{{ url_for('teacher_timetable') }}" class="{{ 'on' if ep=='teacher_timetable' }}">🕘 My Timetable</a>
+    {% elif user.role == 'parent' %}
+      <a href="{{ url_for('parent_dashboard') }}" class="{{ 'on' if ep=='parent_dashboard' }}">🏠 My Children</a>
+      <a href="{{ url_for('home') }}">🌐 School Website</a>
+    {% else %}
+      <a href="{{ url_for('student_dashboard') }}" class="{{ 'on' if ep=='student_dashboard' }}">🏠 Dashboard</a>
+      <a href="{{ url_for('student_result') }}" class="{{ 'on' if ep=='student_result' }}">📄 Check & Print Result</a>
+      <a href="{{ url_for('student_fees') }}" class="{{ 'on' if ep in ('student_fees','pay_demo') }}">💳 School Fees</a>
+      <a href="{{ url_for('student_homework') }}" class="{{ 'on' if ep=='student_homework' }}">📚 Homework</a>
+      <a href="{{ url_for('student_timetable') }}" class="{{ 'on' if ep=='timetable_view' }}">🕘 Timetable</a>
+      <a href="{{ url_for('student_profile') }}" class="{{ 'on' if ep=='student_profile' }}">👤 My Profile</a>
+    {% endif %}
+    <div class="sec">Account</div>
+    <a href="{{ url_for('change_password') }}" class="{{ 'on' if ep=='change_password' }}">🔒 Change Password</a>
+    <div class="sec">{{ cur_session.name if cur_session }} · {{ cur_term }}</div>
+  </nav>
+  <main class="main">
+    {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  {% block public %}
+  <div class="wrap">
+    {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+    {{ self.content() }}
+  </div>
+  {% endblock %}
+{% endif %}
+</body>
+</html>

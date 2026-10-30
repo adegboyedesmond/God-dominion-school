@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📚 Homework</h1>
+<p class="muted">{{ st.school_class.name if st.school_class }} · newest first</p>
+{% include "homework/_list.html" %}
+{% endblock %}

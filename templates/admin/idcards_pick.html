@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🪪 Student ID cards</h1>
+<p class="muted">Print ID cards for a whole class. Upload passport photos on each student's page for best results.</p>
+<div class="grid g4">
+  {% for c in classes %}<a class="card" style="text-decoration:none" target="_blank" href="{{ url_for('admin_idcards', class_id=c.id) }}"><b>{{ c.name }}</b><div class="small muted">Print cards →</div></a>
+  {% else %}<p class="muted">No classes yet.</p>{% endfor %}
+</div>
+{% endblock %}

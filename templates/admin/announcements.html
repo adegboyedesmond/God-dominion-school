@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📣 Announcements</h1>
+<form method="post" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row"><div class="field" style="flex:3"><label>Title</label><input name="title" required></div>
+    <div class="field"><label>Audience</label><select name="audience"><option value="all">Everyone (also public homepage)</option><option value="students">Students</option><option value="teachers">Teachers</option></select></div></div>
+  <div class="field"><label>Message</label><textarea name="body" rows="3" required></textarea></div>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:400" class="mb"><input type="checkbox" name="email_parents" value="1"> Also email it to every parent</label>
+  <button class="btn">Post</button>
+</form>
+{% for a in items %}
+<div class="card"><div class="row"><div style="flex:1"><b>{{ a.title }}</b> <span class="badge">{{ a.audience }}</span> <span class="small muted">{{ a.created_at.strftime('%d %b %Y') }}</span></div>
+  <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ a.id }}"><button class="btn sm bad">Delete</button></form></div>
+  <p>{{ a.body }}</p></div>
+{% endfor %}
+{% endblock %}

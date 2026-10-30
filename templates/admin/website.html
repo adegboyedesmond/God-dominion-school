@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb" style="justify-content:space-between"><h1>🌐 Website Content</h1><a class="btn alt" href="{{ url_for('home') }}" target="_blank">View website ↗</a></div>
+<form method="post" action="{{ url_for('admin_settings') }}" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="section" value="website">
+  <h2>Homepage</h2>
+  <div class="field"><label>Main headline</label><input name="hero_title" value="{{ S.hero_title }}" maxlength="120"></div>
+  <div class="field"><label>Intro text</label><textarea name="hero_text" rows="2">{{ S.hero_text }}</textarea></div>
+  <div class="row">
+    <div class="field"><label>Year founded</label><input type="number" name="founded_year" value="{{ S.founded_year }}"></div>
+    <div class="field"><label>Number of students</label><input type="number" name="stat_students" value="{{ S.stat_students }}"></div>
+    <div class="field"><label>Number of teachers</label><input type="number" name="stat_teachers" value="{{ S.stat_teachers }}"></div>
+    <div class="field"><label>WAEC credit pass rate %</label><input type="number" name="stat_pass_rate" value="{{ S.stat_pass_rate }}"></div>
+  </div>
+  <h2 class="mt">About the school</h2>
+  <div class="field"><label>Principal's welcome message</label><textarea name="principal_welcome" rows="4">{{ S.principal_welcome }}</textarea></div>
+  <div class="field"><label>Our story</label><textarea name="about_text" rows="3">{{ S.about_text }}</textarea></div>
+  <div class="row">
+    <div class="field"><label>Mission</label><textarea name="mission" rows="2">{{ S.mission }}</textarea></div>
+    <div class="field"><label>Vision</label><textarea name="vision" rows="2">{{ S.vision }}</textarea></div>
+  </div>
+  <h2 class="mt">Admissions</h2>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" name="admissions_open" value="1" {{ 'checked' if S.admissions_open=='1' }}> Accept online applications</label>
+  <div class="field mt"><label>Admission notice</label><input name="admission_session_text" value="{{ S.admission_session_text }}"></div>
+  <h2 class="mt">Contact &amp; social</h2>
+  <div class="row">
+    <div class="field"><label>Second phone</label><input name="school_phone2" value="{{ S.school_phone2 }}"></div>
+    <div class="field"><label>WhatsApp number (e.g. 2348012345678)</label><input name="whatsapp" value="{{ S.whatsapp }}"></div>
+    <div class="field"><label>Office hours</label><input name="office_hours" value="{{ S.office_hours }}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Facebook URL</label><input name="facebook" value="{{ S.facebook }}"></div>
+    <div class="field"><label>Instagram URL</label><input name="instagram" value="{{ S.instagram }}"></div>
+    <div class="field"><label>YouTube URL</label><input name="youtube" value="{{ S.youtube }}"></div>
+    <div class="field"><label>X (Twitter) URL</label><input name="x_twitter" value="{{ S.x_twitter }}"></div>
+  </div>
+  <div class="field"><label>Map location (address or place name for Google Maps)</label><input name="map_query" value="{{ S.map_query }}"></div>
+  <p class="mt"><button class="btn">Save Website Content</button></p>
+  <p class="small muted">School name, address, phone, email and logo are in <a href="{{ url_for('admin_settings') }}">Settings</a>.</p>
+</form>
+{% endblock %}

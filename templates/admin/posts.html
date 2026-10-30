@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📰 News &amp; Events</h1>
+<form method="post" enctype="multipart/form-data" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+  <h2>{{ 'Edit post' if edit else 'New post' }}</h2>
+  <div class="row">
+    <div class="field" style="max-width:160px"><label>Type</label><select name="kind" id="kind" onchange="document.getElementById('evf').style.display=this.value=='event'?'flex':'none'"><option value="news" {{ 'selected' if edit and edit.kind=='news' }}>News</option><option value="event" {{ 'selected' if edit and edit.kind=='event' }}>Event</option></select></div>
+    <div class="field" style="flex:3"><label>Title</label><input name="title" required value="{{ edit.title if edit }}"></div>
+  </div>
+  <div class="row" id="evf" style="display:{{ 'flex' if edit and edit.kind=='event' else 'none' }}">
+    <div class="field"><label>Event date</label><input type="date" name="event_date" value="{{ edit.event_date if edit and edit.event_date }}"></div>
+    <div class="field"><label>Time</label><input name="event_time" value="{{ edit.event_time if edit }}" placeholder="10:00am"></div>
+    <div class="field"><label>Venue</label><input name="venue" value="{{ edit.venue if edit }}"></div>
+  </div>
+  <div class="field"><label>Short summary (shows on cards)</label><input name="summary" maxlength="300" value="{{ edit.summary if edit }}"></div>
+  <div class="field"><label>Full story</label><textarea name="body" rows="6">{{ edit.body if edit }}</textarea></div>
+  <div class="row">
+    <div class="field"><label>Upload picture</label><input type="file" name="image" accept="image/*"></div>
+    <div class="field"><label>…or picture URL (blank = illustration)</label><input name="image_url" value="{{ edit.image_url if edit }}"></div>
+  </div>
+  <button class="btn">{{ 'Save changes' if edit else 'Publish post' }}</button> {% if edit %}<a class="btn alt" href="{{ url_for('admin_posts') }}">Cancel</a>{% endif %}
+</form>
+<div class="tbl"><table>
+  <thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for p in posts %}
+    <tr><td><b>{{ p.title }}</b><div class="small muted">{{ p.summary[:90] }}</div></td><td><span class="badge">{{ p.kind }}</span></td>
+      <td class="small">{{ p.event_date.strftime('%d %b %Y') if p.event_date else p.created_at.strftime('%d %b %Y') }}</td>
+      <td><span class="badge {{ 'ok' if p.published else 'bad' }}">{{ 'live' if p.published else 'hidden' }}</span></td>
+      <td style="white-space:nowrap"><a class="btn sm alt" href="?edit={{ p.id }}">Edit</a>
+        {% if p.published %}<a class="btn sm alt" target="_blank" href="{{ url_for('news_detail', slug=p.slug) }}">View</a>{% endif %}
+        {% for a, l in [('toggle', 'Hide' if p.published else 'Show'), ('delete','Delete')] %}<form method="post" class="inline" {% if a=='delete' %}onsubmit="return confirm('Delete this post?')"{% endif %}><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="{{ a }}"><input type="hidden" name="id" value="{{ p.id }}"><button class="btn sm {{ 'bad' if a=='delete' else 'alt' }}">{{ l }}</button></form>{% endfor %}</td></tr>
+  {% else %}<tr><td colspan="5" class="center muted">No posts yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

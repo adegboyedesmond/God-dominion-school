@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admission letter – {{ a.full_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eee;font-family:"Nunito Sans",Georgia,serif;color:#222;line-height:1.6}
+.page{max-width:780px;margin:20px auto;background:#fff;padding:44px 56px;box-shadow:0 4px 20px rgba(0,0,0,.12);position:relative;overflow:hidden}
+.wm{position:absolute;inset:0;background:url("{{ url_for('static', filename='img/crest.png') }}") center 55%/360px no-repeat;opacity:.05;pointer-events:none}
+.head{display:flex;align-items:center;gap:18px;border-bottom:3px double #4a2a9c;padding-bottom:14px}
+.head img{width:92px}.head h1{font-family:"Bricolage Grotesque",Arial;color:#24124f;margin:0;font-size:1.7rem;text-transform:uppercase}
+.head small{display:block;color:#555}
+.ref{display:flex;justify-content:space-between;margin:20px 0;font-size:.95rem}
+h2{font-family:"Bricolage Grotesque",Arial;text-align:center;color:#24124f;text-decoration:underline;font-size:1.25rem;margin:18px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0}td{border:1px solid #ccc;padding:6px 10px;font-size:.95rem}
+.sign{display:flex;justify-content:space-between;margin-top:50px}.sign div{border-top:1px solid #333;padding-top:4px;min-width:200px;text-align:center}
+.bar{max-width:780px;margin:20px auto 0;text-align:right}.bar button{background:#4a2a9c;color:#fff;border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer}
+@media print{body{background:#fff}.page{box-shadow:none;margin:0;padding:20px}.bar{display:none}}
+@media (max-width:600px){.page{padding:24px 18px}.head{flex-direction:column;text-align:center}}
+</style></head>
+<body>
+<div class="bar"><button onclick="print()">🖨️ Print / save as PDF</button></div>
+<div class="page"><div class="wm"></div>
+  <div class="head"><img src="{{ S.logo_url or url_for('static', filename='img/crest.png') }}" alt="">
+    <div><h1>{{ S.school_name }}</h1><small>{{ S.school_address }}</small><small>{{ S.school_phone }} · {{ S.school_email }}</small><small><em>Motto: {{ S.school_motto }}</em></small></div></div>
+  <div class="ref"><span>Ref: {{ a.app_no }}</span><span>{{ now.strftime('%d %B %Y') }}</span></div>
+  <p>{{ a.parent_name }}<br>{{ a.address or '' }}</p>
+  <p>Dear Sir/Madam,</p>
+  <h2>OFFER OF PROVISIONAL ADMISSION</h2>
+  <p>We are pleased to inform you that your ward, <b>{{ a.full_name }}</b>, has been offered provisional admission into <b>{{ st.school_class.name if st and st.school_class else a.class_sought }}</b> of {{ S.school_name }} for the {{ cur_session.name }} academic session.</p>
+  {% if st %}<table><tr><td><b>Registration number</b></td><td>{{ st.reg_no }}</td></tr><tr><td><b>Portal login</b></td><td>Username: {{ st.reg_no }} (password sent to your email)</td></tr></table>{% endif %}
+  <p>This offer is subject to the following conditions:</p>
+  <ol>
+    <li>Payment of the acceptance fee and first-term school fees before resumption{% if S.next_term_begins %} on <b>{{ S.next_term_begins }}</b>{% endif %}.</li>
+    <li>Submission of the original birth certificate, last school report and two passport photographs.</li>
+    <li>Your ward must wear the approved school uniform and abide by the rules and regulations of the school.</li>
+  </ol>
+  <p>School fees can be paid online through the parent portal with card, bank transfer or USSD. Please accept our congratulations; we look forward to welcoming {{ a.full_name.split()[0] }} into the {{ S.school_name }} family.</p>
+  <p>Yours faithfully,</p>
+  <div class="sign"><div><b>{{ S.principal_name }}</b><br>Principal</div><div>Parent's acceptance</div></div>
+</div>
+</body></html>

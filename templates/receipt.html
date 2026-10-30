@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="noprint" style="max-width:700px;margin:0 auto;text-align:right">
+  <button class="btn" onclick="window.print()">🖨️ Print Receipt</button>
+</div>
+<div class="paper" style="max-width:700px">
+  <div class="rhead">
+    <img src="{{ S.logo_url or url_for('static', filename='img/crest.svg') }}" alt="School badge" style="object-fit:contain">
+    <div class="c"><h1>{{ S.school_name }}</h1><div class="small">{{ S.school_address }} · {{ S.school_phone }}</div></div>
+  </div>
+  <div class="rtitle">OFFICIAL PAYMENT RECEIPT</div>
+  <table class="info">
+    <tr><td><b>Receipt / Ref:</b> {{ p.reference }}</td><td><b>Date:</b> {{ (p.paid_at or p.created_at).strftime('%d %b %Y, %I:%M %p') }}</td></tr>
+    {% if p.student %}
+    <tr><td><b>Student:</b> {{ p.student.user.full_name }}</td><td><b>Reg No:</b> {{ p.student.reg_no }}</td></tr>
+    <tr><td><b>Class:</b> {{ p.student.school_class.name if p.student.school_class }}</td><td><b>Session/Term:</b> {{ sess.name if sess }} · {{ p.term }}</td></tr>
+    {% elif p.application %}
+    <tr><td><b>Applicant:</b> {{ p.application.full_name }}</td><td><b>Application No:</b> {{ p.application.app_no }}</td></tr>
+    <tr><td><b>Parent:</b> {{ p.application.parent_name }}</td><td><b>Class sought:</b> {{ p.application.class_sought }}</td></tr>
+    {% endif %}
+    <tr><td><b>Purpose:</b> {{ label }}</td><td><b>Paid via:</b> {{ p.channel|title }}{% if p.gateway_id %} (#{{ p.gateway_id }}){% endif %}</td></tr>
+    <tr><td><b>Amount Paid:</b> <span style="font-size:1.2rem">{{ p.amount|money }}</span></td><td><b>Status:</b> {% if p.status=='success' %}<span class="stamp">PAID</span>{% else %}<span class="badge bad">{{ p.status|upper }}</span>{% endif %}</td></tr>
+    {% if bal is not none %}<tr><td colspan="2"><b>Outstanding balance for the term:</b> {{ bal|money }}</td></tr>{% endif %}
+  </table>
+  {% if p.purpose=='pin' and p.card %}
+  <div class="card mt center">
+    <h3>Your Result Checker Card</h3>
+    <p>Serial: <span class="pinbox">{{ p.card.serial }}</span> &nbsp; PIN: <span class="pinbox">{{ p.card.pin }}</span></p>
+    <p class="small muted">Valid for {{ p.card.max_uses }} checks, for your account only, for the term you first use it on.</p>
+    {% if user and user.role=='student' %}<a class="btn noprint" href="{{ url_for('student_result') }}">Check Result Now</a>{% endif %}
+  </div>
+  {% endif %}
+  {% if p.purpose=='form' and p.application %}<p class="noprint center mt"><a class="btn" href="{{ url_for('admission_status', t=p.application.token) }}">Track the application</a></p>{% endif %}
+  <div class="sign"><div>Bursar</div><div>Generated {{ now.strftime('%d %b %Y') }}</div></div>
+</div>
+{% endblock %}

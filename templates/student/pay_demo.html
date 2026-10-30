@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:500px;margin:20px auto">
+  <h1>Test payment</h1>
+  <p class="flash error">Flutterwave is not connected yet (no <code>FLW_SECRET_KEY</code>). This screen pretends the payment worked so you can test the whole flow, including the email receipt.</p>
+  <p><b>Reference:</b> {{ p.reference }}<br><b>Amount:</b> {{ p.amount|money }}<br><b>For:</b> {{ label }}</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn ok">Mark as paid (test)</button>
+    <a class="btn alt" href="{{ request.referrer or url_for('home') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

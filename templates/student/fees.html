@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💳 School Fees — {{ cur_session.name }}, {{ cur_term }}</h1>
+<div class="grid g2">
+  <div class="card">
+    <h2>Fee Breakdown</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Item</th><th class="right">Amount</th></tr></thead>
+      <tbody>{% for i in items %}<tr><td>{{ i.name }}</td><td class="right">{{ i.amount|money }}</td></tr>{% else %}<tr><td colspan="2" class="muted">No fees set for this term yet.</td></tr>{% endfor %}</tbody>
+      <tfoot>
+        <tr><th>Total</th><th class="right">{{ total|money }}</th></tr>
+        <tr><td>Paid</td><td class="right" style="color:var(--ok)">{{ paid|money }}</td></tr>
+        <tr><th>Balance</th><th class="right" style="color:{{ 'var(--bad)' if bal>0 else 'var(--ok)' }}">{{ bal|money }}</th></tr>
+      </tfoot>
+    </table></div>
+  </div>
+  <div>
+    <div class="card">
+      <h2>Make a Payment</h2>
+      {% if bal > 0 %}
+      <form method="post" action="{{ url_for('pay_start') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="purpose" value="fees">
+        <div class="field"><label>Amount (₦) — pay in full or part</label><input type="number" name="amount" min="1" max="{{ bal }}" step="0.01" value="{{ '%.2f'|format(bal) }}"></div>
+        <button class="btn ok" style="width:100%">Pay {{ 'now with Flutterwave' if pay_live else '(test mode)' }}</button>
+      </form>
+      <p class="small muted mt">Card, bank transfer and USSD accepted. Your receipt is generated instantly.</p>
+      {% else %}<p><span class="badge ok">Fully paid</span> Thank you!</p>{% endif %}
+    </div>
+    <div class="card">
+      <h2>🔑 Buy Result Checker PIN</h2>
+      <p class="muted small">Price: <b>{{ S.pin_price|float|money }}</b>. The PIN is added to your account straight away.</p>
+      <form method="post" action="{{ url_for('pay_start') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="purpose" value="pin">
+        <button class="btn gold">Buy PIN</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <h2>Payment History</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Date</th><th>Reference</th><th>For</th><th>Session / Term</th><th class="right">Amount</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for p in history %}
+      <tr><td>{{ (p.paid_at or p.created_at).strftime('%d %b %Y') }}</td><td class="small">{{ p.reference }}</td><td>{{ 'Fees' if p.purpose=='fees' else 'PIN' }}</td>
+        <td>{{ sessions.get(p.session_id) }} · {{ p.term }}</td><td class="right">{{ p.amount|money }}</td>
+        <td><span class="badge {{ 'ok' if p.status=='success' else 'bad' if p.status=='failed' else 'warn' }}">{{ p.status }}</span></td>
+        <td>{% if p.status=='success' %}<a class="btn sm alt" href="{{ url_for('receipt', ref=p.reference) }}">Receipt</a>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="7" class="muted center">No payments yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

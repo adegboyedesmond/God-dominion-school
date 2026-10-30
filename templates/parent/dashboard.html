@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome, {{ user.full_name or 'Parent' }} 👋</h1>
+<p class="muted">{{ cur_session.name }} · {{ cur_term }} · {{ kids|length }} child{{ 'ren' if kids|length != 1 }} at {{ S.school_name }}</p>
+{% for k in kids %}{% set st = k.st %}
+<div class="card kid">
+  <div class="row" style="align-items:center;gap:14px">
+    {% if st.photo_url %}<img src="{{ st.photo_url }}" alt="" class="kav">{% else %}<span class="kav">{{ st.user.full_name[:1] }}</span>{% endif %}
+    <div style="flex:1"><h2 style="margin:0">{{ st.user.full_name }}</h2><div class="small muted">{{ st.reg_no }} · {{ st.school_class.name if st.school_class else 'No class yet' }}</div></div>
+    <a class="btn sm alt" href="{{ url_for('parent_child', sid=st.id) }}">Open full profile</a>
+  </div>
+  <div class="grid g3 mt">
+    <div class="stat"><div class="l">Fees balance ({{ cur_term }})</div><div class="n" style="color:{{ 'var(--bad)' if k.bal>0 else 'var(--ok)' }}">{{ k.bal|money }}</div>
+      {% if k.bal > 0 %}<form method="post" action="{{ url_for('pay_start') }}" class="row mt" style="gap:6px;align-items:center">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="purpose" value="fees"><input type="hidden" name="student_id" value="{{ st.id }}">
+        <input type="number" name="amount" min="1" max="{{ k.bal }}" step="0.01" value="{{ '%.2f'|format(k.bal) }}" style="max-width:150px"><button class="btn sm ok">Pay</button></form>
+      {% else %}<span class="badge ok">Fully paid</span>{% endif %}</div>
+    <div class="stat"><div class="l">Attendance this term</div>
+      {% if k.att %}<div class="n">{{ k.att.rate }}%</div><div class="small muted">{{ k.att.absent }} absent · {{ k.att.late }} late</div>{% else %}<div class="n">–</div><div class="small muted">Not recorded yet</div>{% endif %}
+      <a class="small" href="{{ url_for('attendance_student', sid=st.id) }}">See days</a></div>
+    <div class="stat"><div class="l">Results</div>
+      {% if k.published %}<div class="small">{% for p in k.published[:2] %}{{ sessions.get(p.session_id) }} {{ p.term }} ✓<br>{% endfor %}</div>{% else %}<div class="small muted">No results published yet</div>{% endif %}
+      <a class="btn sm mt" href="{{ url_for('parent_result', sid=st.id) }}">Check &amp; print result</a></div>
+  </div>
+  {% if k.hw %}<h3 class="mt">Latest homework</h3>{% with items=k.hw %}{% include "homework/_list.html" %}{% endwith %}{% endif %}
+</div>
+{% else %}
+<div class="card"><p>No children are linked to this account yet. Please contact the school office so they can add your email to your child's record.</p></div>
+{% endfor %}
+{% if news %}<div class="card"><h2>📣 School news</h2>{% for n in news %}<div class="mb"><b>{{ n.title }}</b> <span class="small muted">{{ n.created_at.strftime('%d %b') }}</span><div class="small">{{ n.body }}</div></div>{% endfor %}</div>{% endif %}
+<style>.kav{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--accent);display:grid;place-items:center;font-weight:800;color:var(--brand);font-size:1.4rem;flex:none}</style>
+{% endblock %}

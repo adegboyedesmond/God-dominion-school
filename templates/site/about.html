@@ -1,0 +1,59 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head, cta_band with context %}
+{% block title %}About us · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('About ' ~ S.school_name, 'Founded in ' ~ S.founded_year ~ ', growing young people in knowledge, character and faith.', 'About') }}
+<section class="sec"><div class="container split">
+  <div>
+    <h2>Our story</h2>
+    <p class="lead">{{ S.about_text }}</p>
+    <p>Today our students learn in well-equipped classrooms and labs, take part in sports, music and clubs, and leave us ready for university and for life. Many of our former students now study in universities across Nigeria and abroad.</p>
+  </div>
+  <div class="arch-img"><img src="{{ url_for('static', filename='img/photos/courtyard.jpg') }}" alt="The two-storey classroom blocks around the school courtyard" style="object-position:40% 50%"></div>
+</div></section>
+
+<section class="sec tint"><div class="container">
+  <div class="split" style="align-items:start">
+    <div class="box" style="background:#fff"><h3>Our mission</h3><p class="lead" style="margin:0">{{ S.mission }}</p></div>
+    <div class="box" style="background:var(--royal);color:#e3dcfa"><h3 style="color:#fff">Our vision</h3><p class="lead" style="margin:0;color:#e3dcfa">{{ S.vision }}</p></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="container">
+  <div class="head"><h2>What we stand for</h2></div>
+  <div class="values v4">
+    <div><b>Faith</b><span>Morning devotion, weekly fellowship and a culture of prayer and respect.</span></div>
+    <div><b>Excellence</b><span>Qualified teachers, close monitoring of every student and regular feedback to parents.</span></div>
+    <div><b>Discipline</b><span>Punctuality, neatness and good conduct are taught and rewarded.</span></div>
+    <div><b>Service</b><span>Prefects, clubs and outreach projects build responsible leaders.</span></div>
+  </div>
+</div></section>
+
+<section class="sec tint"><div class="container split">
+  <div class="arch-img"><img src="{{ url_for('static', filename='img/photos/gate.jpg') }}" alt="The school entrance with the school sign and motto boards"></div>
+  <div>
+    <h2>From the principal's desk</h2>
+    <p class="lead">{{ S.principal_welcome }}</p>
+    <div class="sign"><span class="av">{{ S.principal_name[:1] }}</span><span><b>{{ S.principal_name }}</b><small>Principal</small></span></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="container">
+  <div class="head"><h2>Why parents choose us</h2></div>
+  <div class="split" style="align-items:start">
+    <ul class="ticks">
+      <li>Small classes, so every student gets attention</li>
+      <li>Qualified, experienced and caring teachers</li>
+      <li>Strong WAEC, NECO and BECE results</li>
+      <li>Moral and spiritual instruction every week</li>
+    </ul>
+    <ul class="ticks">
+      <li>Results, fees and receipts online through the portal</li>
+      <li>Science, ICT and library facilities used every week</li>
+      <li>Safe, secure and well-supervised campus</li>
+      <li>Regular parent–teacher meetings and termly reports</li>
+    </ul>
+  </div>
+</div></section>
+{{ cta_band() }}
+{% endblock %}

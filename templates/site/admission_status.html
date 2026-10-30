@@ -1,0 +1,44 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head with context %}
+{% block title %}Track application · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Track your application', 'Enter the application number and the phone number you used on the form.', 'Admissions') }}
+<section class="sec"><div class="container split" style="align-items:start">
+  <form class="form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="f"><label for="an">Application number</label><input id="an" name="app_no" required placeholder="{{ S.school_short }}/ADM/{{ now.year }}/0001" value="{{ request.form.app_no }}"></div>
+    <div class="f" style="margin-top:14px"><label for="ph">Parent's phone number</label><input id="ph" name="phone" type="tel" required value="{{ request.form.phone }}"></div>
+    <button class="b b-royal" style="margin-top:18px">Check status</button>
+  </form>
+  <div>
+  {% if a %}
+    {% set order = ['submitted','reviewing','invited','admitted'] %}
+    {% set labels = {'submitted':'Received','reviewing':'Under review','invited':'Exam invite','admitted':'Admitted'} %}
+    <div class="box">
+      <h2 style="font-size:1.6rem">{{ a.full_name }}</h2>
+      <p>{{ a.app_no }} · applying for {{ a.class_sought }} · submitted {{ a.created_at.strftime('%d %B %Y') }}</p>
+      <div class="status">
+        {% if a.status == 'declined' %}<span class="bad">Not successful this time</span>
+        {% else %}{% for s in order %}<span class="{{ 'on' if order.index(s) <= order.index(a.status) }}">{{ labels[s] }}</span>{% endfor %}{% endif %}
+      </div>
+      {% if a.status == 'submitted' %}<p>We have your application and will review it shortly.</p>
+      {% elif a.status == 'reviewing' %}<p>Your application is being reviewed. Expect a call within a few days.</p>
+      {% elif a.status == 'invited' %}<p><b>Your child is invited for the entrance examination{% if a.exam_date %} on {{ a.exam_date }}{% endif %}.</b> Bring the items listed on the admissions page.</p>
+      {% elif a.status == 'admitted' %}<p><b>Congratulations! {{ a.full_name }} has been offered admission.</b></p>
+      <p><a class="b b-royal b-sm" href="{{ url_for('admission_letter', token=a.token) }}" target="_blank">View &amp; print admission letter</a></p>
+      {% else %}<p>Thank you for considering us. Please contact the office if you would like feedback.</p>{% endif %}
+      {% if a.admin_note %}<p><b>Message from the school:</b> {{ a.admin_note }}</p>{% endif %}
+      {% if form_fee > 0 and not a.form_paid %}
+      <div style="background:#fdf1d3;border-radius:14px;padding:16px 18px;margin:14px 0 0">
+        <b>Pay the admission form fee: {{ form_fee|money }}</b>
+        <p style="margin:6px 0 10px;font-size:.95rem">Your application moves to review once the form fee is paid. Card, bank transfer or USSD.</p>
+        <form method="post" action="{{ url_for('admission_pay', token=a.token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="b b-gold">Pay {{ form_fee|money }} now</button></form>
+      </div>
+    {% elif form_fee > 0 %}<p><span style="background:#e3f4ec;color:#17694a;padding:4px 12px;border-radius:999px;font-weight:700;font-size:.9rem">Form fee paid ✓</span></p>{% endif %}
+    </div>
+  {% else %}
+    <div class="box"><h3>Lost your application number?</h3><p>Call {{ S.school_phone }} with the child's name and the phone number you used, and the office will find it for you.</p></div>
+  {% endif %}
+  </div>
+</div></section>
+{% endblock %}

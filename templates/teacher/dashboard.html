@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome, {{ user.full_name }}</h1>
+<p class="muted">{{ cur_session.name }} · {{ cur_term }}</p>
+<div class="card">
+  <h2>📚 My Subjects — Score Entry</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Class</th><th>Subject</th><th>Progress</th><th></th></tr></thead>
+    <tbody>{% for a in assigns %}{% set d, n = progress[a.id] %}
+      <tr><td>{{ a.school_class.name }}</td><td>{{ a.subject.name }}</td>
+        <td style="min-width:160px"><div class="progress"><i style="width:{{ (d*100/n)|round if n else 0 }}%"></i></div><span class="small muted">{{ d }} / {{ n }} students</span></td>
+        <td style="white-space:nowrap"><a class="btn sm" href="{{ url_for('enter_scores', cs_id=a.id) }}">Enter Scores</a> <a class="btn sm alt" href="{{ url_for('homework_manage', cs_id=a.id) }}">Homework</a></td></tr>
+    {% else %}<tr><td colspan="4" class="muted center">No subjects assigned yet. Contact the admin.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% if form_classes %}
+<div class="card">
+  <h2>🏫 Form Teacher</h2>
+  {% for c in form_classes %}
+    <div class="row mb"><b style="flex:1">{{ c.name }}</b>
+      <a class="btn sm ok" href="{{ url_for('attendance_register', class_id=c.id) }}">🗓️ Take today's register</a>
+      <a class="btn sm" href="{{ url_for('class_remarks', class_id=c.id) }}">Report remarks</a>
+      <a class="btn sm alt" href="{{ url_for('timetable_view', class_id=c.id) }}">Timetable</a>
+      <a class="btn sm alt" href="{{ url_for('broadsheet', class_id=c.id) }}">Broadsheet</a></div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="card"><h2>📣 Announcements</h2>
+  {% for n in news %}<div class="mb"><b>{{ n.title }}</b> <span class="small muted">{{ n.created_at.strftime('%d %b') }}</span><div class="small">{{ n.body }}</div></div>{% else %}<p class="muted">None.</p>{% endfor %}
+</div>
+{% endblock %}

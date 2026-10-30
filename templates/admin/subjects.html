@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📚 Subjects & Teacher Assignment</h1>
+<div class="grid g2">
+  <div class="card">
+    <h2>Add Subject</h2>
+    <form method="post" class="row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="add">
+      <div class="field"><label>Name</label><input name="name" required placeholder="Mathematics"></div>
+      <div class="field" style="max-width:110px"><label>Code</label><input name="code" placeholder="MTH"></div>
+      <div class="field"><button class="btn">Add</button></div>
+    </form>
+    <div class="tbl mt"><table><tbody>
+      {% for s in subjects %}<tr><td>{{ s.name }}</td><td class="muted">{{ s.code }}</td><td class="right">
+        <form method="post" class="inline" onsubmit="return confirm('Delete {{ s.name }}?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ s.id }}"><button class="btn sm bad">×</button></form></td></tr>
+      {% else %}<tr><td class="muted">No subjects.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>Assign Subject to Classes</h2>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="assign">
+      <div class="field"><label>Subject</label><select name="subject_id" required>{% for s in subjects %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Teacher</label><select name="teacher_id"><option value="">— unassigned —</option>{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}</select></div>
+      <label>Classes</label>
+      <div class="grid g3 mb small">{% for c in classes %}<label style="font-weight:400;display:flex;gap:6px"><input type="checkbox" name="class_ids" value="{{ c.id }}"> {{ c.name }}</label>{% endfor %}</div>
+      <button class="btn">Assign</button>
+    </form>
+  </div>
+</div>
+<div class="card">
+  <h2>Current Assignments</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Class</th><th>Subject</th><th>Teacher</th><th></th></tr></thead>
+    <tbody>{% for a in assigns %}
+      <tr><td>{{ a.school_class.name }}</td><td>{{ a.subject.name }}</td><td>{{ a.teacher.full_name if a.teacher else '—' }}</td>
+        <td class="right" style="white-space:nowrap"><a class="btn sm alt" href="{{ url_for('enter_scores', cs_id=a.id) }}">Scores</a>
+          <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="unassign"><input type="hidden" name="id" value="{{ a.id }}"><button class="btn sm bad">Remove</button></form></td></tr>
+    {% else %}<tr><td colspan="4" class="center muted">Nothing assigned yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

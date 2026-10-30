@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💬 Testimonials</h1>
+<form method="post" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row"><div class="field"><label>Name</label><input name="name" required></div><div class="field"><label>Who they are</label><input name="role" value="Parent"></div></div>
+  <div class="field"><label>What they said</label><textarea name="text" rows="3" required></textarea></div>
+  <button class="btn">Add</button> <span class="small muted">The first three shown testimonials appear on the homepage.</span>
+</form>
+{% for t in items %}
+<div class="card"><div class="row"><div style="flex:1"><b>{{ t.name }}</b> <span class="muted small">{{ t.role }}</span> {% if not t.show %}<span class="badge bad">hidden</span>{% endif %}</div>
+  {% for a, l in [('toggle', 'Hide' if t.show else 'Show'), ('delete','Delete')] %}<form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="{{ a }}"><input type="hidden" name="id" value="{{ t.id }}"><button class="btn sm {{ 'bad' if a=='delete' else 'alt' }}">{{ l }}</button></form>{% endfor %}</div>
+  <p class="mt">“{{ t.text }}”</p></div>
+{% endfor %}
+{% endblock %}

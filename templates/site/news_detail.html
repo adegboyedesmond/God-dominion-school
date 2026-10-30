@@ -1,0 +1,23 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import news_card, post_img with context %}
+{% block title %}{{ p.title }} · {{ S.school_name }}{% endblock %}
+{% block desc %}{{ p.summary }}{% endblock %}
+{% block main %}
+<section class="phead"><div class="container">
+  <div class="crumbs"><a href="{{ url_for('home') }}">Home</a> / <a href="{{ url_for('news_list') }}">News &amp; events</a></div>
+  <h1>{{ p.title }}</h1>
+  <p>{% if p.kind=='event' %}{{ p.event_date.strftime('%A %d %B %Y') }}{% if p.event_time %}, {{ p.event_time }}{% endif %}{% if p.venue %} at {{ p.venue }}{% endif %}{% else %}Posted {{ p.created_at.strftime('%d %B %Y') }}{% endif %}</p>
+</div></section>
+<section class="sec"><div class="container">
+  <article class="article">
+    <div class="pic"><img src="{{ post_img(p) }}" alt=""></div>
+    {% if p.summary %}<p class="lead">{{ p.summary }}</p>{% endif %}
+    <div class="body">{% for para in (p.body or '').split('\n') if para.strip() %}<p>{{ para }}</p>{% endfor %}</div>
+    {% if p.kind=='event' and p.event_date >= today %}
+    <div class="box" style="margin-top:24px"><b>Add to your calendar:</b>
+      <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ (p.title ~ ' – ' ~ S.school_name)|urlencode }}&dates={{ p.event_date.strftime('%Y%m%d') }}/{{ p.event_date.strftime('%Y%m%d') }}&details={{ p.summary|urlencode }}&location={{ (p.venue or S.school_address)|urlencode }}" target="_blank" rel="noopener">Google Calendar</a></div>
+    {% endif %}
+  </article>
+  {% if more %}<h2 style="margin-top:64px">More from the school</h2><div class="news">{% for m in more %}{{ news_card(m) }}{% endfor %}</div>{% endif %}
+</div></section>
+{% endblock %}

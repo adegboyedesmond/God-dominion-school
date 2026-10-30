@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome, {{ st.user.full_name.split()[0] }} 👋</h1>
+<p class="muted">{{ st.reg_no }} · {{ st.school_class.name if st.school_class else 'No class assigned' }} · {{ cur_session.name }} {{ cur_term }}</p>
+<div class="grid g3 mb">
+  <div class="stat"><div class="l">Term Fees</div><div class="n">{{ total|money }}</div></div>
+  <div class="stat"><div class="l">Paid</div><div class="n" style="color:var(--ok)">{{ paid|money }}</div></div>
+  <div class="stat"><div class="l">Balance</div><div class="n" style="color:{{ 'var(--bad)' if bal>0 else 'var(--ok)' }}">{{ bal|money }}</div>
+    {% if bal>0 %}<a class="btn sm mt" href="{{ url_for('student_fees') }}">Pay now</a>{% else %}<span class="badge ok">Cleared</span>{% endif %}</div>
+</div>
+<div class="grid g2">
+  <div class="card">
+    <h2>🕘 Today's lessons</h2>
+    {% if today_slots %}<div class="tbl"><table><tbody>{% for p, t in today_slots %}<tr><td class="small muted" style="width:120px">{{ p }}</td><td>{% if t.subject_id %}<b>{{ t.subject.name }}</b>{% else %}<span class="muted">{{ t.label }}</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+    {% else %}<p class="muted">{{ 'No lessons today — enjoy the weekend!' if today.weekday() > 4 else 'Your timetable has not been set yet.' }}</p>{% endif %}
+    <a class="btn sm alt mt" href="{{ url_for('student_timetable') }}">Full timetable</a>
+  </div>
+  <div class="card">
+    <h2>📚 Homework</h2>
+    {% with items=hw %}{% include "homework/_list.html" %}{% endwith %}
+    <a class="btn sm alt" href="{{ url_for('student_homework') }}">All homework</a>
+  </div>
+  <div class="card">
+    <h2>🗓️ My attendance</h2>
+    {% if att %}<p style="font-size:1.6rem;font-weight:700;margin:0;color:var(--brand-2)">{{ att.rate }}%</p><p class="small muted">{{ att.present }} of {{ att.open }} days · {{ att.absent }} absent · {{ att.late }} late</p>
+    {% else %}<p class="muted">Nothing recorded this term yet.</p>{% endif %}
+    <a class="btn sm alt" href="{{ url_for('attendance_student', sid=st.id) }}">See days</a>
+  </div>
+  <div class="card">
+    <h2>📄 Results</h2>
+    {% if pubs %}
+      <p>Published results for your class:</p>
+      <ul>{% for p in pubs %}<li>{{ sessions.get(p.session_id) }} — {{ p.term }}</li>{% endfor %}</ul>
+    {% else %}<p class="muted">No results published yet for your class.</p>{% endif %}
+    <a class="btn" href="{{ url_for('student_result') }}">Check & Print Result</a>
+    {% if cards %}<p class="small muted mt">You have {{ cards|length }} result PIN(s) on your account.</p>{% endif %}
+  </div>
+  <div class="card">
+    <h2>📣 Announcements</h2>
+    {% for n in news %}<div class="mb"><b>{{ n.title }}</b> <span class="small muted">{{ n.created_at.strftime('%d %b') }}</span><div class="small">{{ n.body }}</div></div>
+    {% else %}<p class="muted">No announcements.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

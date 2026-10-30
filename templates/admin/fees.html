@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💰 Fee Setup — {{ cur_session.name }}, {{ cur_term }}</h1>
+<div class="grid g2">
+  <form method="post" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="add">
+    <h2>Add Fee Item</h2>
+    <div class="row"><div class="field"><label>Item</label><input name="name" required placeholder="Tuition"></div><div class="field"><label>Amount (₦)</label><input type="number" step="0.01" name="amount" required></div></div>
+    <div class="row"><div class="field"><label>Session</label><select name="session_id">{% for s in sessions %}<option value="{{ s.id }}" {{ 'selected' if s.id==cur_session.id }}>{{ s.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Term</label><select name="term">{% for t in TERMS %}<option {{ 'selected' if t==cur_term }}>{{ t }}</option>{% endfor %}</select></div></div>
+    <label>Applies to (none ticked = all levels)</label>
+    <div class="grid g3 mb small">{% for l in levels %}<label style="font-weight:400;display:flex;gap:6px"><input type="checkbox" name="levels" value="{{ l }}"> {{ l }}</label>{% endfor %}</div>
+    <button class="btn">Add</button>
+  </form>
+  <div class="card">
+    <h2>Total per Level</h2>
+    <div class="tbl"><table><tbody>{% for l, t in totals.items() %}<tr><td>{{ l }}</td><td class="right"><b>{{ t|money }}</b></td></tr>{% endfor %}</tbody></table></div>
+    <form method="post" class="row mt"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="copy">
+      <div class="field"><label>Copy items from</label><select name="src_term">{% for t in TERMS if t != cur_term %}<option>{{ t }}</option>{% endfor %}</select></div>
+      <div class="field"><button class="btn sm alt">Copy into {{ cur_term }}</button></div></form>
+  </div>
+</div>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Level</th><th class="right">Amount</th><th></th></tr></thead>
+  <tbody>{% for i in items %}
+    <tr><td>{{ i.name }}</td><td><span class="badge">{{ i.level }}</span></td><td class="right">{{ i.amount|money }}</td>
+      <td class="right"><form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ i.id }}"><button class="btn sm bad">×</button></form></td></tr>
+  {% else %}<tr><td colspan="4" class="center muted">No fee items for this term.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

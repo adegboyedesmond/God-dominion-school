@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🧾 Payments & Debtors</h1>
+<form method="post" class="card row">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div style="flex-basis:100%"><b>Record cash / bank payment</b> <span class="small muted">({{ cur_term }})</span></div>
+  <div class="field"><label>Reg No</label><input name="reg_no" required></div>
+  <div class="field"><label>Amount (₦)</label><input type="number" step="0.01" name="amount" required></div>
+  <div class="field"><label>Channel</label><select name="channel"><option value="cash">Cash</option><option value="bank">Bank Transfer / Teller</option><option value="pos">POS</option></select></div>
+  <div class="field"><label>Note</label><input name="note" placeholder="Teller no, etc."></div>
+  <div class="field"><button class="btn">Record</button></div>
+</form>
+<form method="get" class="row mb">
+  <div class="field"><input name="q" value="{{ request.args.q or '' }}" placeholder="Ref, reg no or name"></div>
+  <div class="field"><select name="status">{% for s in ['success','pending','failed',''] %}<option value="{{ s }}" {{ 'selected' if (request.args.status if request.args.status is not none else 'success')==s }}>{{ s or 'all' }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn sm">Filter</button> <a class="btn sm alt" href="?{{ request.query_string.decode() }}&format=csv">⬇ CSV</a></div>
+</form>
+<div class="tbl mb"><table>
+  <thead><tr><th>Date</th><th>Reference</th><th>Student</th><th>For</th><th>Term</th><th class="right">Amount</th><th>Channel</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for p in pays %}
+    <tr><td class="small">{{ (p.paid_at or p.created_at).strftime('%d %b %Y %H:%M') }}</td><td class="small">{{ p.reference }}</td><td>{% if p.student %}{{ p.student.user.full_name }}<div class="small muted">{{ p.student.reg_no }}</div>{% elif p.application %}{{ p.application.full_name }}<div class="small muted">{{ p.application.app_no }} (applicant)</div>{% endif %}</td>
+      <td>{{ p.purpose }}</td><td class="small">{{ sessions.get(p.session_id) }}<br>{{ p.term }}</td><td class="right">{{ p.amount|money }}</td><td>{{ p.channel }}</td>
+      <td><span class="badge {{ 'ok' if p.status=='success' else 'bad' if p.status=='failed' else 'warn' }}">{{ p.status }}</span></td>
+      <td>{% if p.status=='success' %}<a class="btn sm alt" href="{{ url_for('receipt', ref=p.reference) }}">Receipt</a>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="9" class="center muted">No payments.</td></tr>{% endfor %}</tbody>
+</table></div>
+<div class="card">
+  <div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Debtors — {{ cur_term }} ({{ debtors|length }})</h2>
+  {% if debtors %}<form method="post" action="{{ url_for('admin_fee_reminders') }}" onsubmit="return confirm('Email a fee reminder to every owing parent?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm gold">✉️ Email reminders to all</button></form>{% endif %}</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Student</th><th>Class</th><th>Guardian Phone</th><th class="right">Due</th><th class="right">Paid</th><th class="right">Balance</th></tr></thead>
+    <tbody>{% for st, t, pd, b in debtors %}
+      <tr><td>{{ st.user.full_name }} <span class="small muted">{{ st.reg_no }}</span></td><td>{{ st.school_class.name if st.school_class }}</td><td>{{ st.guardian_phone or '' }}</td>
+        <td class="right">{{ t|money }}</td><td class="right">{{ pd|money }}</td><td class="right" style="color:var(--bad)"><b>{{ b|money }}</b></td></tr>
+    {% else %}<tr><td colspan="6" class="center muted">Nobody is owing. 🎉</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

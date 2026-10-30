@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🖼️ Gallery</h1>
+<form method="post" enctype="multipart/form-data" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div class="field"><label>Photos (you can pick several)</label><input type="file" name="images" accept="image/*" multiple></div>
+    <div class="field"><label>…or image URL</label><input name="image_url"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Caption</label><input name="caption" maxlength="160"></div>
+    <div class="field"><label>Category</label><input name="category" list="cats" value="School life"></div>
+    <div class="field"><button class="btn">Add to Gallery</button></div>
+  </div>
+  <datalist id="cats">{% for c in ['School life','Academics','Sports','Events','Campus','Graduation'] %}<option>{{ c }}</option>{% endfor %}</datalist>
+</form>
+<div class="grid g4">
+  {% for i in items %}
+  <div class="card" style="padding:8px">
+    <img src="{{ i.image_url }}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px">
+    <div class="small mt"><b>{{ i.caption or 'No caption' }}</b><br><span class="muted">{{ i.category }}</span></div>
+    <form method="post" onsubmit="return confirm('Remove photo?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ i.id }}"><button class="btn sm bad mt">Remove</button></form>
+  </div>
+  {% else %}<p class="muted">No photos yet.</p>{% endfor %}
+</div>
+{% endblock %}

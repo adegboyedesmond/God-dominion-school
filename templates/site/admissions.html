@@ -1,0 +1,73 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head with context %}
+{% block title %}Admissions · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Admissions', S.admission_session_text if S.admissions_open=='1' else 'Admission is currently closed. Contact the office to join the waiting list.', 'Admissions') }}
+<section class="sec tint"><div class="container">
+  <div class="head"><h2>How admission works</h2></div>
+  <ol class="steps">
+    <li><b>Apply online</b><span>Complete the form below. Your application number is emailed to you straight away.</span></li>
+    <li><b>Entrance exam</b><span>We send the exam date by phone. The test covers English, Mathematics and general knowledge.</span></li>
+    <li><b>Interview and tour</b><span>Parents and child meet the principal and see the school.</span></li>
+    <li><b>Admission letter</b><span>Accept the offer, pay fees and receive a portal login for your child.</span></li>
+  </ol>
+</div></section>
+
+<section class="sec" id="apply"><div class="container split" style="align-items:start">
+  <div>
+    {% if S.admissions_open == '1' %}
+    <form class="form" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input class="sr" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <h2 style="font-size:1.8rem">Admission form</h2>
+      <p class="lead" style="font-size:1rem">Fields marked <span class="req">*</span> are required. It takes about five minutes. We email you a confirmation, the exam date and the admission decision.{% if S.form_fee|float > 0 %} The admission form fee is <b>{{ S.form_fee|float|money }}</b>, payable online after you submit.{% endif %}</p>
+      <fieldset><legend>About the child</legend><div class="fg">
+        <div class="f full"><label for="fn">Full name <span class="req">*</span></label><input id="fn" name="full_name" required value="{{ form.full_name }}" autocomplete="off"></div>
+        <div class="f"><label for="dob">Date of birth</label><input id="dob" type="date" name="dob" value="{{ form.dob }}"></div>
+        <div class="f"><label for="gd">Gender <span class="req">*</span></label><select id="gd" name="gender" required><option value="">Choose</option>{% for gg in ['Male','Female'] %}<option {{ 'selected' if form.gender==gg }}>{{ gg }}</option>{% endfor %}</select></div>
+        <div class="f"><label for="cs">Class applying for <span class="req">*</span></label><select id="cs" name="class_sought" required><option value="">Choose</option>{% for l in levels %}<option {{ 'selected' if form.class_sought==l }}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="f"><label for="ps">Current or last school</label><input id="ps" name="previous_school" value="{{ form.previous_school }}"></div>
+        <div class="f full"><label for="ph">Passport photograph (optional)</label><input id="ph" type="file" name="photo" accept="image/*"></div>
+      </div></fieldset>
+      <fieldset><legend>Parent or guardian</legend><div class="fg">
+        <div class="f"><label for="pn">Full name <span class="req">*</span></label><input id="pn" name="parent_name" required value="{{ form.parent_name }}" autocomplete="name"></div>
+        <div class="f"><label for="rl">Relationship</label><select id="rl" name="relationship">{% for r in ['Father','Mother','Guardian'] %}<option {{ 'selected' if form.relationship==r }}>{{ r }}</option>{% endfor %}</select></div>
+        <div class="f"><label for="pp">Phone number <span class="req">*</span></label><input id="pp" name="phone" type="tel" required value="{{ form.phone }}" autocomplete="tel" placeholder="08012345678"></div>
+        <div class="f"><label for="em">Email <span class="req">*</span></label><input id="em" name="email" type="email" required value="{{ form.email }}" autocomplete="email" placeholder="We send every update here"></div>
+        <div class="f full"><label for="ad">Home address</label><input id="ad" name="address" value="{{ form.address }}" autocomplete="street-address"></div>
+        <div class="f"><label for="hf">How did you hear about us?</label><select id="hf" name="heard_from">{% for h in ['Friend or family','Church','Social media','Signboard','Another parent','Other'] %}<option {{ 'selected' if form.heard_from==h }}>{{ h }}</option>{% endfor %}</select></div>
+        <div class="f full"><label for="nt">Anything we should know? (health, learning needs, questions)</label><textarea id="nt" name="notes" rows="3">{{ form.notes }}</textarea></div>
+      </div></fieldset>
+      <button class="b b-royal">Submit application</button>
+    </form>
+    {% else %}
+    <div class="box"><h2>Admission is closed</h2><p>Call {{ S.school_phone }} or <a href="{{ url_for('contact') }}">send us a message</a> to join the waiting list for the next intake.</p></div>
+    {% endif %}
+  </div>
+  <div>
+    <div class="box" style="margin-bottom:24px">
+      <h3>Bring these for the entrance exam</h3>
+      <ul class="ticks"><li>Application number</li><li>Two passport photographs</li><li>Copy of birth certificate</li><li>Last term's report card</li><li>Pencil, eraser and ruler</li></ul>
+    </div>
+    <div class="box" style="margin-bottom:24px" id="uniform">
+      <h3>School uniform</h3>
+      <img src="{{ url_for('static', filename='img/photos/uniform.jpg') }}" alt="The school uniform: light blue shirt with crest, blue check skirt and trousers, navy socks and black shoes" style="border-radius:14px;margin-bottom:14px;width:100%" loading="lazy">
+      <ul class="ticks"><li>Light blue shirt with the school crest on the pocket</li><li>Blue check skirt (girls) or trousers (boys)</li><li>Navy blue socks</li><li>Black lace-up or buckle shoes</li></ul>
+      <p style="margin:10px 0 0;font-size:.95rem">Uniforms are sold at the school office after admission.</p>
+    </div>
+    <div class="box" style="margin-bottom:24px">
+      <h3>Already applied?</h3>
+      <p>Check whether your child has been invited for the exam or offered admission.</p>
+      <a class="b b-line b-sm" href="{{ url_for('admission_status') }}">Track my application</a>
+    </div>
+    <div class="faq" id="faq">
+      <h3>Admission questions</h3>
+      <details><summary>Which classes can I apply into?</summary><p>JSS 1 to SS 2. We do not admit new students into SS 3 because of WAEC registration.</p></details>
+      <details><summary>Is there an application fee?</summary><p>Applying online is free. The entrance examination form fee is paid at the school on exam day.</p></details>
+      <details><summary>How much are school fees?</summary><p>Fees depend on the class. Call the office or visit us for the current fee schedule. Once admitted, fees can be paid online through the student portal.</p></details>
+      <details><summary>Do you accept students of other faiths?</summary><p>Yes. We are a Christian school and all students attend devotion, but we welcome every family that respects our values.</p></details>
+      <details><summary>Can we visit before applying?</summary><p>Yes. Visits are welcome on weekdays. <a href="{{ url_for('contact') }}">Book a visit</a> so a staff member can show you around.</p></details>
+    </div>
+  </div>
+</div></section>
+{% endblock %}

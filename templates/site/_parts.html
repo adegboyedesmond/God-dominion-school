@@ -1,0 +1,32 @@
+{% macro post_img(p) -%}
+{%- set pool = ['photos/students.jpg','photos/lab.jpg','photos/ict.jpg','photos/classroom.jpg','photos/library.jpg','photos/courtyard.jpg','photos/classwork.jpg'] -%}
+{{ p.image_url or url_for('static', filename='img/' ~ pool[p.id % pool|length]) }}
+{%- endmacro %}
+
+{% macro event_row(e) -%}
+<a class="event" href="{{ url_for('news_detail', slug=e.slug) }}">
+  <div class="date"><b>{{ e.event_date.strftime('%b') }}</b><span>{{ e.event_date.day }}</span></div>
+  <div><h3>{{ e.title }}</h3><small>{{ e.event_date.strftime('%A') }}{% if e.event_time %}, {{ e.event_time }}{% endif %}{% if e.venue %} at {{ e.venue }}{% endif %}</small></div>
+</a>
+{%- endmacro %}
+
+{% macro news_card(p) -%}
+<a class="card-n" href="{{ url_for('news_detail', slug=p.slug) }}">
+  <div class="pic"><img src="{{ post_img(p) }}" alt="" loading="lazy"></div>
+  <div class="in"><time>{{ (p.event_date or p.created_at).strftime('%d %B %Y') }}{% if p.kind=='event' %} (event){% endif %}</time><h3>{{ p.title }}</h3><p>{{ p.summary }}</p></div>
+</a>
+{%- endmacro %}
+
+{% macro page_head(title, text, crumb=None) -%}
+<section class="phead"><div class="container">
+  <div class="crumbs"><a href="{{ url_for('home') }}">Home</a>{% if crumb %} / {{ crumb }}{% endif %}</div>
+  <h1>{{ title }}</h1><p>{{ text }}</p>
+</div></section>
+{%- endmacro %}
+
+{% macro cta_band() -%}
+<section class="sec" style="padding-top:0"><div class="container"><div class="cta">
+  <div><h2>Give your child a place to grow</h2><p>{{ S.admission_session_text if S.admissions_open=='1' else 'Admission is currently closed. Contact the school office to join the waiting list.' }}</p></div>
+  <div class="acts"><a class="b b-gold" href="{{ url_for('admissions') }}#apply">Apply for admission</a><a class="b b-white" href="{{ url_for('contact') }}">Book a school visit</a></div>
+</div></div></section>
+{%- endmacro %}

@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Result PIN Cards</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body style="background:#fff;padding:16px">
+<p class="noprint"><button class="btn" onclick="print()">🖨️ Print</button> <span class="muted">{{ cards|length }} unused cards</span></p>
+<div class="pins">
+{% for c in cards %}
+  <div class="pincard">
+    <div style="display:flex;gap:8px;align-items:center"><img src="{{ S.logo_url or url_for('static', filename='img/crest.svg') }}" alt="" style="width:34px"><b style="color:var(--brand)">{{ S.school_name }}</b></div>
+    <div class="small muted">RESULT CHECKER CARD</div>
+    <div class="mt">Serial: <b>{{ c.serial }}</b></div>
+    <div>PIN: <b>{{ c.pin }}</b></div>
+    <div class="small muted mt">Valid for {{ c.max_uses }} checks · {{ url_for('public_result', _external=True) }}</div>
+  </div>
+{% endfor %}
+</div>
+</body></html>

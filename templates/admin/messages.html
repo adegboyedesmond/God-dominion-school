@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>✉️ Messages from the website</h1>
+{% for m in items %}
+<div class="card" style="{{ '' if m.read else 'border-left:4px solid var(--accent)' }}">
+  <div class="row"><div style="flex:1"><b>{{ m.name }}</b> <span class="badge">{{ m.subject }}</span> <span class="small muted">{{ m.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+    <div class="small">{% if m.phone %}<a href="tel:{{ m.phone }}">{{ m.phone }}</a>{% endif %} {% if m.email %}· <a href="mailto:{{ m.email }}?subject=Re: {{ m.subject }}">{{ m.email }}</a>{% endif %}</div></div>
+    {% for a, l in [('read', 'Mark unread' if m.read else 'Mark read'), ('delete','Delete')] %}<form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="{{ a }}"><input type="hidden" name="id" value="{{ m.id }}"><button class="btn sm {{ 'bad' if a=='delete' else 'alt' }}">{{ l }}</button></form>{% endfor %}</div>
+  <p class="mt" style="white-space:pre-line">{{ m.message }}</p>
+</div>
+{% else %}<p class="muted">No messages yet.</p>{% endfor %}
+{% endblock %}

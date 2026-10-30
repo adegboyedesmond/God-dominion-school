@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>⚙️ Settings</h1>
+<form method="post" class="card" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="section" value="general">
+  <h2>School Information</h2>
+  <p class="small muted">Homepage text, photos, social links and admission settings are under <a href="{{ url_for('admin_website') }}">Website Content</a>.</p>
+  <div class="row">
+    <div class="field"><label>School Name</label><input name="school_name" value="{{ S.school_name }}"></div>
+    <div class="field"><label>Motto</label><input name="school_motto" value="{{ S.school_motto }}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Address</label><input name="school_address" value="{{ S.school_address }}"></div>
+    <div class="field"><label>Phone</label><input name="school_phone" value="{{ S.school_phone }}"></div>
+    <div class="field"><label>Email</label><input name="school_email" value="{{ S.school_email }}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Logo URL (blank = built-in crest)</label><input name="logo_url" value="{{ S.logo_url }}"></div>
+    <div class="field"><label>…or upload a logo</label><input type="file" name="logo_file" accept="image/*"></div>
+    <div class="field"><label>Short name (used in numbers)</label><input name="school_short" value="{{ S.school_short }}"></div>
+    <div class="field"><label>Principal's Name</label><input name="principal_name" value="{{ S.principal_name }}"></div>
+  </div>
+  <h2 class="mt">Academic Calendar</h2>
+  <div class="row">
+    <div class="field"><label>Current Session</label><select name="current_session_id">{% for s in sessions %}<option value="{{ s.id }}" {{ 'selected' if cur_session and s.id==cur_session.id }}>{{ s.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label>Current Term</label><select name="current_term">{% for t in TERMS %}<option {{ 'selected' if t==cur_term }}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="field"><label>Next Term Begins</label><input name="next_term_begins" value="{{ S.next_term_begins }}" placeholder="e.g. 6th January 2027"></div>
+  </div>
+  <h2 class="mt">Scoring (must add up to 100)</h2>
+  <div class="row">
+    <div class="field"><label>CA1 max</label><input type="number" name="ca1_max" value="{{ S.ca1_max }}"></div>
+    <div class="field"><label>CA2 max</label><input type="number" name="ca2_max" value="{{ S.ca2_max }}"></div>
+    <div class="field"><label>Exam max</label><input type="number" name="exam_max" value="{{ S.exam_max }}"></div>
+  </div>
+  <h2 class="mt">Result PINs</h2>
+  <div class="row">
+    <div class="field"><label>Online PIN price (₦)</label><input type="number" name="pin_price" value="{{ S.pin_price }}"></div>
+    <div class="field"><label>Uses per PIN</label><input type="number" name="pin_max_uses" value="{{ S.pin_max_uses }}" min="1"></div>
+  </div>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" name="block_result_if_owing" value="1" {{ 'checked' if S.block_result_if_owing=='1' }}> Block result checking for students owing fees for that term</label>
+  <p class="mt"><button class="btn">Save Settings</button></p>
+</form>
+<div class="grid g2">
+  <form method="post" action="{{ url_for('admin_add_session') }}" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Add Academic Session</h2>
+    <div class="field"><label>Session name</label><input name="name" placeholder="2027/2028" required pattern="\d{4}/\d{4}"></div>
+    <label style="display:flex;gap:8px;font-weight:400"><input type="checkbox" name="make_current"> Make it the current session</label>
+    <p class="mt"><button class="btn sm">Add Session</button></p>
+    <p class="small muted">Existing: {% for s in sessions %}{{ s.name }}{{ ', ' if not loop.last }}{% endfor %}</p>
+  </form>
+  <form method="post" action="{{ url_for('admin_add_admin') }}" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Add Another Admin</h2>
+    <div class="field"><label>Full name</label><input name="full_name" required></div>
+    <div class="row"><div class="field"><label>Username</label><input name="username" required></div>
+    <div class="field"><label>Password</label><input name="password" type="password" minlength="6" required></div></div>
+    <button class="btn sm">Create Admin</button>
+  </form>
+</div>
+<form method="post" class="card" id="email">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="section" value="notify">
+  <h2>✉️ Emails to parents</h2>
+  <p class="small muted">Choose which messages are sent automatically. Every email is recorded in the <a href="{{ url_for('admin_emails') }}">Email log</a>.</p>
+  <div class="grid g2">
+    {% for k, l in [('email_on_application','Admission: application received'),('email_on_status','Admission: exam invite, admission or decline'),('email_on_payment','Payment receipts (fees, PINs, form fee)'),('email_on_results','Results published for a class'),('email_on_absence','Child marked absent or late'),('email_on_homework','New homework set')] %}
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" name="{{ k }}" value="1" {{ 'checked' if S[k]=='1' }}> {{ l }}</label>
+    {% endfor %}
+  </div>
+  <div class="row mt">
+    <div class="field"><label>Send school alerts (new applications, messages) to</label><input type="email" name="admin_notify_email" value="{{ S.admin_notify_email }}" placeholder="{{ S.school_email }}"></div>
+    <div class="field"><label>Admission form fee (₦, 0 = free)</label><input type="number" min="0" step="50" name="form_fee" value="{{ S.form_fee }}"></div>
+  </div>
+  <button class="btn">Save</button>
+</form>
+<div class="grid g3">
+  <div class="card small">
+    <h2>🗄️ Database</h2>
+    {% if db_live %}<p><span class="badge ok">Supabase connected</span></p><p>Every application, student, score and payment is saved in your Supabase database.</p>
+    {% else %}<p><span class="badge warn">Local test database</span></p><p>Set <code>DATABASE_URL</code> to your Supabase connection string to go live.</p>{% endif %}
+  </div>
+  <div class="card small">
+    <h2>💳 Flutterwave</h2>
+    {% if pay_live %}<p><span class="badge ok">Live</span></p><p>Webhook URL for your Flutterwave dashboard:<br><code>{{ url_for('flutterwave_webhook', _external=True) }}</code></p>
+    {% else %}<p><span class="badge warn">Test mode</span></p><p>Set <code>FLW_SECRET_KEY</code> and <code>FLW_SECRET_HASH</code> to accept real payments.</p>{% endif %}
+  </div>
+  <div class="card small">
+    <h2>✉️ Email server</h2>
+    {% if mail_live %}<p><span class="badge ok">Connected</span></p>{% else %}<p><span class="badge warn">Not set up</span></p><p>Set <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>. Emails are still saved in the log so you can read them.</p>{% endif %}
+    <form method="post" action="{{ url_for('admin_test_email') }}" class="row"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><input type="email" name="to" required placeholder="your@email.com"></div><div class="field"><button class="btn sm">Send test</button></div></form>
+  </div>
+</div>
+{% endblock %}

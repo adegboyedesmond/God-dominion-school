@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Student ID cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;padding:16px;font-family:"Nunito Sans",Arial,sans-serif;background:#eee}
+.bar{margin-bottom:14px}.bar button{background:#4a2a9c;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,85.6mm);gap:6mm}
+.idc{width:85.6mm;height:54mm;border-radius:3mm;overflow:hidden;background:#fff;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.2);break-inside:avoid}
+.top{background:#24124f;color:#fff;display:flex;align-items:center;gap:2mm;padding:2mm 3mm;height:13mm}
+.top img{height:10mm}.top b{font-family:"Bricolage Grotesque",Arial;font-size:3.6mm;line-height:1;display:block}.top small{font-size:2.2mm;color:#d9d2f3}
+.body{display:flex;gap:3mm;padding:2.5mm 3mm}
+.ph{width:20mm;height:25mm;border-radius:2mm;object-fit:cover;background:#ebe5fb;display:grid;place-items:center;font:800 7mm "Bricolage Grotesque",Arial,sans-serif;color:#4a2a9c;flex:none;border:.5mm solid #e8a91c}
+.f{font-size:2.5mm;line-height:1.35}.f .n{font:800 3.6mm "Bricolage Grotesque",Arial,sans-serif;color:#24124f;line-height:1.1;margin-bottom:1mm}.f b{color:#625b78;font-weight:700}
+.foot{position:absolute;left:0;right:0;bottom:0;background:#e8a91c;color:#24124f;font-size:2.1mm;font-weight:700;padding:1mm 3mm;display:flex;justify-content:space-between}
+.stripe{position:absolute;right:0;top:13mm;bottom:5mm;width:2mm;background:#c8285a}
+@media print{body{background:#fff;padding:0}.bar{display:none}.idc{box-shadow:none;border:.2mm solid #ccc}@page{size:A4;margin:10mm}}
+</style></head>
+<body>
+<div class="bar"><button onclick="print()">🖨️ Print {{ students|length }} card{{ 's' if students|length != 1 }}</button> <span>Cards print at real ID-card size (85.6 × 54 mm).</span></div>
+<div class="cards">
+{% for st in students %}
+<div class="idc">
+  <div class="top"><img src="{{ S.logo_url or url_for('static', filename='img/crest.png') }}" alt=""><span><b>{{ S.school_name|upper }}</b><small>STUDENT IDENTITY CARD · {{ cur_session.name }}</small></span></div>
+  <div class="stripe"></div>
+  <div class="body">
+    {% if st.photo_url %}<img class="ph" src="{{ st.photo_url }}" alt="">{% else %}<span class="ph">{{ st.user.full_name[:1] }}</span>{% endif %}
+    <div class="f">
+      <div class="n">{{ st.user.full_name }}</div>
+      <div><b>Reg No:</b> {{ st.reg_no }}</div>
+      <div><b>Class:</b> {{ st.school_class.name if st.school_class else '—' }}</div>
+      <div><b>Gender:</b> {{ st.gender or '—' }}{% if st.blood_group %} · <b>Blood:</b> {{ st.blood_group }}{% endif %}</div>
+      <div><b>Parent:</b> {{ st.guardian_phone or '—' }}</div>
+    </div>
+  </div>
+  <div class="foot"><span>{{ S.school_motto }}</span><span>If found, call {{ S.school_phone }}</span></div>
+</div>
+{% endfor %}
+</div>
+</body></html>

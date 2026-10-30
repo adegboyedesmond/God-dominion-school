@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>✉️ Email log</h1>
+<p class="muted">Every email the portal sends to parents and staff.{% if not mail_live %} <b>The email server isn't set up yet</b>, so messages are saved here as "not_configured" — <a href="{{ url_for('admin_settings') }}#email">set it up</a>.{% endif %}</p>
+<form method="get" class="row mb">
+  <div class="field"><input name="q" value="{{ request.args.q or '' }}" placeholder="Search email or subject"></div>
+  <div class="field"><select name="status"><option value="">All ({{ counts.values()|sum }})</option>{% for s in ['sent','queued','failed','not_configured'] %}<option value="{{ s }}" {{ 'selected' if request.args.status==s }}>{{ s }} ({{ counts.get(s,0) }})</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn sm">Filter</button></div>
+</form>
+<div class="tbl"><table>
+  <thead><tr><th>When</th><th>To</th><th>Subject</th><th>Type</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for e in items %}
+    <tr><td class="small">{{ e.created_at.strftime('%d %b %H:%M') }}</td><td class="small">{{ e.to }}</td><td>{{ e.subject }}{% if e.error %}<div class="small" style="color:var(--bad)">{{ e.error[:120] }}</div>{% endif %}</td>
+      <td><span class="badge">{{ e.kind }}</span></td>
+      <td><span class="badge {{ 'ok' if e.status=='sent' else 'bad' if e.status=='failed' else 'warn' }}">{{ e.status }}</span></td>
+      <td style="white-space:nowrap"><a class="btn sm alt" target="_blank" href="{{ url_for('admin_email_view', eid=e.id) }}">View</a>
+        {% if e.status in ('failed','not_configured') %}<form method="post" action="{{ url_for('admin_email_resend', eid=e.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm alt">Resend</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="6" class="center muted">No emails yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

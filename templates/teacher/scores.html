@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ cs.subject.name }} — {{ cs.school_class.name }}</h1>
+<p class="muted">{{ cur_session.name }} · {{ cur_term }} · Max: CA1 {{ mx.ca1|int }}, CA2 {{ mx.ca2|int }}, Exam {{ mx.exam|int }}</p>
+{% if locked %}<div class="flash error">These results are published and locked. Ask the admin to unpublish if you need to make corrections.</div>{% endif %}
+<div class="card">
+  <div class="row">
+    <div style="flex:1"><b>Bulk upload (CSV)</b><div class="small muted">Download the template, fill in ca1, ca2, exam, then upload.</div></div>
+    <a class="btn sm alt" href="{{ url_for('scores_template', cs_id=cs.id) }}">⬇ Download Template</a>
+    {% if not locked %}
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('scores_upload', cs_id=cs.id) }}" class="row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="file" name="file" accept=".csv" required style="max-width:240px">
+      <button class="btn sm">⬆ Upload</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="tbl"><table id="sc">
+    <thead><tr><th>#</th><th>Student</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Grade</th></tr></thead>
+    <tbody>{% for st in students %}{% set e = existing.get(st.id) %}
+      <tr><td>{{ loop.index }}</td><td>{{ st.user.full_name }}<div class="small muted">{{ st.reg_no }}</div></td>
+        <td><input type="number" step="0.5" min="0" max="{{ mx.ca1 }}" name="ca1_{{ st.id }}" value="{{ e.ca1 if e }}" {{ 'disabled' if locked }}></td>
+        <td><input type="number" step="0.5" min="0" max="{{ mx.ca2 }}" name="ca2_{{ st.id }}" value="{{ e.ca2 if e }}" {{ 'disabled' if locked }}></td>
+        <td><input type="number" step="0.5" min="0" max="{{ mx.exam }}" name="exam_{{ st.id }}" value="{{ e.exam if e }}" {{ 'disabled' if locked }}></td>
+        <td class="tot"><b>{{ e.total if e else '' }}</b></td><td class="gr">{{ grade_for(e.total)[0] if e else '' }}</td></tr>
+    {% else %}<tr><td colspan="7" class="center muted">No students in this class.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if not locked and students %}<p class="mt"><button class="btn ok">💾 Save Scores</button> <span class="small muted">Leave a row blank to skip that student.</span></p>{% endif %}
+</form>
+<script>
+const G=[[75,'A1'],[70,'B2'],[65,'B3'],[60,'C4'],[55,'C5'],[50,'C6'],[45,'D7'],[40,'E8'],[0,'F9']];
+document.querySelectorAll('#sc tbody tr').forEach(tr=>{
+  const ins=tr.querySelectorAll('input');if(!ins.length)return;
+  const upd=()=>{let any=false,t=0;ins.forEach(i=>{if(i.value!==''){any=true;t+=parseFloat(i.value)||0}
+      i.style.borderColor=(parseFloat(i.value)>parseFloat(i.max))?'#c0392b':''});
+    tr.querySelector('.tot').innerHTML=any?'<b>'+t+'</b>':'';tr.querySelector('.gr').textContent=any?G.find(g=>t>=g[0])[1]:''};
+  ins.forEach(i=>i.addEventListener('input',upd));
+});
+</script>
+{% endblock %}

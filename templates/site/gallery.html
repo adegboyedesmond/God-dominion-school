@@ -1,0 +1,28 @@
+{% extends "site/layout.html" %}
+{% from "site/_parts.html" import page_head, cta_band with context %}
+{% block title %}Gallery · {{ S.school_name }}{% endblock %}
+{% block main %}
+{{ page_head('Gallery', 'Moments from classrooms, labs, sports days, celebrations and everyday school life.', 'Gallery') }}
+<section class="sec"><div class="container">
+  {% if cats|length > 1 %}
+  <div class="filters" role="group" aria-label="Filter photos">
+    <button type="button" aria-pressed="true" data-cat="">All photos</button>
+    {% for c in cats %}<button type="button" aria-pressed="false" data-cat="{{ c }}">{{ c }}</button>{% endfor %}
+  </div>
+  {% endif %}
+  <div class="gal" data-gallery>
+    {% for g in items %}<button type="button" data-cat="{{ g.category }}" data-src="{{ g.image_url }}" data-cap="{{ g.caption }}"><img src="{{ g.image_url }}" alt="{{ g.caption }}" loading="lazy"><span>{{ g.caption }}</span></button>
+    {% else %}<p>Photos are coming soon.</p>{% endfor %}
+  </div>
+</div></section>
+{{ cta_band() }}
+{% include "site/_lightbox.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.filters button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.filters button').forEach(b=>b.setAttribute('aria-pressed',b===btn));
+  const c=btn.dataset.cat;document.querySelectorAll('.gal button').forEach(g=>g.hidden=c&&g.dataset.cat!==c);
+}));
+</script>
+{% endblock %}

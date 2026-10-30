@@ -1,0 +1,5 @@
+{% extends "email/layout.html" %}{% block body %}<h2 style="margin:0 0 12px;color:#24124f;font-size:21px">School fees reminder</h2>
+<p>Dear {{ st.guardian_name or 'Parent' }},</p>
+<p>This is a friendly reminder about <b>{{ st.user.full_name }}</b>'s school fees for the {{ term }}, {{ session_name }} session.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e4dff3;border-radius:8px;margin:14px 0;font-size:14px"><tr><td style="padding:6px 10px;background:#f6f3fd;font-weight:bold;width:40%">Total fees</td><td style="padding:6px 10px">{{ total|money }}</td></tr><tr><td style="padding:6px 10px;background:#f6f3fd;font-weight:bold;width:40%">Paid so far</td><td style="padding:6px 10px">{{ paid|money }}</td></tr><tr><td style="padding:6px 10px;background:#f6f3fd;font-weight:bold;width:40%">Balance</td><td style="padding:6px 10px"><b style='color:#a3271b'>{{ balance|money }}</b></td></tr></table>
+<p>You can pay online with card, bank transfer or USSD through the parent or student portal.</p>{% endblock %}

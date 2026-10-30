@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>👩‍🏫 Teachers</h1>
+<form method="post" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="add">
+  <div class="row">
+    <div class="field"><label>Full name</label><input name="full_name" required></div>
+    <div class="field"><label>Username</label><input name="username" required placeholder="e.g. tadebayo"></div>
+    <div class="field"><label>Password (blank = auto)</label><input name="password"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Email</label><input name="email" type="email"></div>
+    <div class="field"><label>Phone</label><input name="phone"></div>
+    <div class="field"><button class="btn">Add Teacher</button></div>
+  </div>
+</form>
+<div class="tbl"><table>
+  <thead><tr><th>Name</th><th>Username</th><th>Contact</th><th>Subjects</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for t in teachers %}
+    <tr><td>{{ t.full_name }}</td><td>{{ t.username }}</td><td class="small">{{ t.email or '' }}<br>{{ t.phone or '' }}</td><td>{{ load[t.id] }}</td>
+      <td><span class="badge {{ 'ok' if t.active else 'bad' }}">{{ 'active' if t.active else 'disabled' }}</span></td>
+      <td style="white-space:nowrap">{% for a, lbl in [('reset','Reset Password'),('toggle','Disable' if t.active else 'Enable')] %}
+        <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="{{ a }}"><input type="hidden" name="id" value="{{ t.id }}"><button class="btn sm alt">{{ lbl }}</button></form>{% endfor %}</td></tr>
+  {% else %}<tr><td colspan="6" class="center muted">No teachers yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

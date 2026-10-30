@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📝 Results — {{ cur_session.name }}, {{ cur_term }}</h1>
+<p class="muted">Track score entry per class, add principal comments, then publish. Publishing locks teacher editing and lets students check results with a PIN.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Class</th><th>Students</th><th>Subjects</th><th>Score Entry</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}
+    <tr><td><b>{{ r.cl.name }}</b><div class="small muted">{{ r.cl.form_teacher.full_name if r.cl.form_teacher else 'no form teacher' }}</div></td>
+      <td>{{ r.students }}</td><td>{{ r.subjects }}</td>
+      <td style="min-width:150px"><div class="progress"><i style="width:{{ (r.entered*100/r.expected)|round if r.expected else 0 }}%"></i></div><span class="small muted">{{ r.entered }} / {{ r.expected }}</span>
+        <details class="small"><summary>by subject</summary>{% for cs in r.cs_list %}<div><a href="{{ url_for('enter_scores', cs_id=cs.id) }}">{{ cs.subject.name }}</a> <span class="muted">· {{ cs.teacher.full_name if cs.teacher else 'no teacher' }}</span></div>{% endfor %}</details></td>
+      <td>{% if r.published %}<span class="badge ok">Published</span>{% else %}<span class="badge warn">Draft</span>{% endif %}</td>
+      <td style="white-space:nowrap">
+        <a class="btn sm alt" href="{{ url_for('broadsheet', class_id=r.cl.id) }}">Broadsheet</a>
+        <a class="btn sm alt" href="{{ url_for('class_remarks', class_id=r.cl.id) }}">Comments</a>
+        <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="class_id" value="{{ r.cl.id }}">
+          {% if r.published %}<input type="hidden" name="action" value="unpublish"><button class="btn sm bad">Unpublish</button>
+          {% else %}<input type="hidden" name="action" value="publish"><label class="small" style="display:inline-flex;gap:4px;align-items:center;font-weight:400;margin-right:6px"><input type="checkbox" name="notify" value="1" checked> email parents</label><button class="btn sm ok" {% if r.entered < r.expected %}onclick="return confirm('Some scores are missing. Publish anyway?')"{% endif %}>Publish</button>{% endif %}
+        </form></td></tr>
+  {% else %}<tr><td colspan="6" class="center muted">No classes yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}
